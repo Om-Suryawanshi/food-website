@@ -1,10 +1,13 @@
 const categories = document.getElementById("categories");
 const food = document.getElementById("food");
+const search = document.querySelector('header div input');
 
 const CATEGORIES_URL = "https://www.themealdb.com/api/json/v1/1/categories.php";
 const CATEGORY_CLICK_URL = "https://www.themealdb.com/api/json/v1/1/filter.php?c=";
 const MEAL_SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
 const INGREDIANT_IMAGE_URL = "https://www.themealdb.com/images/ingredients/";
+const SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+
 
 function get_categories(url) {
     categories.innerHTML = ``;
@@ -38,22 +41,27 @@ function open_category(url, category) {
     fetch(url + category).then(res => res.json()).then(data => {
         console.log(data);
         categories.innerHTML = ``;
-        for (let i = 0; i < data.meals.length; i++) {
-            const category = document.createElement('div');
-            category.classList.add('category');
-            category.innerHTML = `
+        if (data.meals != 'null') {
+            for (let i = 0; i < data.meals.length; i++) {
+                const category = document.createElement('div');
+                category.classList.add('category');
+                category.innerHTML = `
             <div id="${data.meals[i].idMeal}">
         <h1>${data.meals[i].strMeal}</h1>
         <img src="${data.meals[i].strMealThumb}">
         </div>
         `
-            categories.appendChild(category);
-            let id = data.meals[i].idMeal;
-            document.getElementById(id).addEventListener('click', () => {
-                console.log(id);
-                open_food(MEAL_SEARCH_URL, id);
-            })
+                categories.appendChild(category);
+                let id = data.meals[i].idMeal;
+                document.getElementById(id).addEventListener('click', () => {
+                    console.log(id);
+                    open_food(MEAL_SEARCH_URL, id);
+                })
 
+            }
+        }
+        else {
+            category.innerHTML = `<h1>No Result Found</h1>`
         }
     });
 }
@@ -102,16 +110,17 @@ function open_food(url, id) {
         </div>
 
         `
-        for (let i = 0; i <= filteredIngredients.length-1; i++) {
+        for (let i = 0; i <= filteredIngredients.length - 1; i++) {
             console.log(filteredIngredients[i]);
             const image_url = [];
             image_url.push(INGREDIANT_IMAGE_URL + filteredIngredients[i] + ".png");
             console.log(image_url[i]);
             const ingrediant = document.createElement('div');
             ingrediant.classList.add('ingredient');
+            let tag = i + 1;
             ingrediant.innerHTML = `
             <!-- <img src="${INGREDIANT_IMAGE_URL + filteredIngredients[i] + ".png"} style="max-width: 10vw;" "> -->
-                        <span>${filteredIngredients[i]}</span>
+                        <span>${[tag]}. ${filteredIngredients[i]}</span>
                         <span>${filteredMeasures[i]}</span>
                     `;
 
@@ -133,10 +142,30 @@ function open_food(url, id) {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowfullscreen></iframe>
         </div>`;
-        
         food.appendChild(instructions);
-        
     })
+}
+
+
+// Search meal
+
+search.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const data = search.value;
+        console.log(data);
+        search_meal(SEARCH_URL, data);
+
+    }
+})
+
+
+function search_meal(url, data) {
+    fetch(url + data).then(res => res.json()).then(data => {
+        console.log(data);
+        food.innerHTML = ``;
+    })
+    open_category(url, data);
 }
 
 get_categories(CATEGORIES_URL);

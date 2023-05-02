@@ -38,120 +38,31 @@ header {
 }
 
 /* form style */
-.form {
-    font-size: 0.9rem;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    width: var(--width-of-input);
+.container-input {
     position: relative;
-    isolation: isolate;
-    margin-top: 30px;
 }
 
-/* a fancy bg for showing background and border when focus. */
-.fancy-bg {
-    position: absolute;
-    width: 100%;
-    inset: 0;
-    background: var(--input-bg-color);
-    border-radius: 30px;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
-}
-
-/* label styling */
-label {
-    width: 100%;
-    padding: 0.8em;
-    height: 40px;
-    padding-inline: var(--inline-padding-of-input);
-    display: flex;
-    align-items: center;
-}
-
-.search,
-.close-btn {
-    position: absolute;
-}
-
-/* styling search-icon */
-.search {
-    fill: var(--text-color);
-    left: var(--inline-padding-of-input);
-}
-
-/* svg -- size */
-svg {
-    width: 17px;
-    display: block;
-}
-
-/* styling of close button */
-.close-btn {
-    border: none;
-    right: var(--inline-padding-of-input);
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    padding: 0.1em;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: var(--active-color);
-    opacity: 0;
-    visibility: hidden;
-}
-
-/* styling of input */
 .input {
-    color: var(--input-text-color);
-    width: 100%;
-    margin-inline: min(2em, calc(var(--inline-padding-of-input) + var(--gap)));
-    background: none;
-    border: none;
+    width: 150px;
+    padding: 10px 0px 10px 40px;
+    border-radius: 9999px;
+    border: solid 1px #333;
+    transition: all .2s ease-in-out;
+    outline: none;
+    opacity: 0.8;
+}
+
+.container-input svg {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translate(0, -50%);
 }
 
 .input:focus {
-    outline: none;
-}
-
-.input::placeholder {
-    color: var(--text-color)
-}
-
-/* input background change in focus */
-.input:focus~.fancy-bg {
-    border: 1px solid var(--active-color);
-    background: var(--focus-input-bg-color);
-}
-
-/* search icon color change in focus */
-.input:focus~.search {
-    fill: var(--active-color);
-}
-
-/* showing close button when typing */
-.input:valid~.close-btn {
     opacity: 1;
-    visibility: visible;
+    width: 250px;
 }
-
-/* this is for the default background in input,when selecting autofill options -- you can remove this code if you do not want to override the browser style.  */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-transition: "color 9999s ease-out, background-color 9999s ease-out";
-    -webkit-transition-delay: 9999s;
-}
-
-
-
 
 /* Categories */
 
@@ -196,7 +107,6 @@ input:-webkit-autofill:active {
 h1 {
     max-width: 20vw;
     width: 100%;
-    /* opacity: 0; */
 }
 
 .category:hover {
@@ -218,80 +128,7 @@ h1 {
     transition: .5s;
 }
 
-/* Overlay */
-
-/* The Overlay (background) */
-.overlay {
-    /* Height & width depends on how you want to reveal the overlay (see JS below) */
-    height: 100%;
-    width: 0;
-    position: fixed;
-    /* Stay in place */
-    z-index: 1;
-    /* Sit on top */
-    left: 0;
-    top: 0;
-    background-color: rgb(0, 0, 0);
-    /* Black fallback color */
-    background-color: rgba(0, 0, 0, 0.922);
-    /* Black w/opacity */
-    overflow-x: hidden;
-    /* Disable horizontal scroll */
-    transition: 0.5s;
-    /* 0.5 second transition effect to slide in or slide down the overlay (height or width, depending on reveal) */
-}
-
-/* Position the content inside the overlay */
-.overlay-content {
-    position: relative;
-    top: 25%;
-    /* 25% from the top */
-    width: 100%;
-    /* 100% width */
-    /* Centered text/links */
-    /* 30px top margin to avoid conflict with the close button on smaller screens */
-}
-
-/* The navigation links inside the overlay */
-.overlay a {
-    padding: 8px;
-    text-decoration: none;
-    font-size: 36px;
-    color: #818181;
-    display: block;
-    /* Display block instead of inline */
-    transition: 0.3s;
-    /* Transition effects on hover (color) */
-}
-
-/* When you mouse over the navigation links, change their color */
-.overlay a:hover,
-.overlay a:focus {
-    color: #f1f1f1;
-}
-
-/* Position the close button (top right corner) */
-.overlay .closebtn {
-    position: absolute;
-    top: 20px;
-    right: 45px;
-    font-size: 60px;
-}
-
-/* When the height of the screen is less than 450 pixels, change the font-size of the links and position the close button again, so they don't overlap */
-@media screen and (max-height: 450px) {
-    .overlay a {
-        font-size: 20px
-    }
-
-    .overlay .closebtn {
-        font-size: 40px;
-        top: 15px;
-        right: 35px;
-    }
-}
-
-/* Overlay food */
+/* Food */
 .food {
     margin-top: 50px;
 }
@@ -311,7 +148,8 @@ h1 {
 }
 
 /* = */
-h1, span {
+h1,
+span {
     color: white;
 }
 
@@ -510,4 +348,101 @@ footer {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+
+/* Tablet Media Screen */
+
+@media screen and (max-width: 720px) {
+    body {
+        /* background: red; */
+        overflow-x: hidden;
+    }
+
+    .categories {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.5rem;
+        padding: 30px;
+    }
+
+    .category div img {
+        max-width: 30vw;
+    }
+
+    .category div h1 {
+        font-size: 20px;
+    }
+
+    .food {
+        margin-top: 5px;
+    }
+
+    .title h1 {
+        max-width: 100vw;
+        margin-bottom: 10px;
+    }
+
+    .data {
+        justify-content: center;
+    }
+
+    .ingredients {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .instructions {
+        line-height: 2;
+    }
+
+    .youtube iframe {
+        width: 800%;
+    }
+
+}
+
+/* Mobile Screen */
+
+@media screen and (max-width: 480px) {
+    /* body {
+        background: green;
+    } */
+
+    .categories {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .category div img {
+        max-width: 40vw;
+    }
+
+    .food-container {
+        grid-template-columns: 1fr;
+    }
+
+    .data img {
+        max-width: 80vw;
+    }
+
+    .data span {
+        margin-top: 10px;
+    }
+
+    .ingredients {
+        padding: 30px;
+    }
+
+    .ingredient {
+        text-align: center;
+        padding: 5px;
+    }
+
+    .instructions {
+        padding: 30px;
+    }
+
+    .instructions h1 {
+        max-width: 100vw;
+    }
 }

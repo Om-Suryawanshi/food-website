@@ -94,6 +94,7 @@ function open_food(url, id) {
         const meal = data.meals[0];
         const ingredients = [];
         const measures = [];
+        const image_url = [];
 
         for (let i = 1; i <= 20; i++) {
             const thisIngredient = meal[`strIngredient${i}`];
@@ -130,14 +131,15 @@ function open_food(url, id) {
         `
         for (let i = 0; i <= filteredIngredients.length - 1; i++) {
             console.log(filteredIngredients[i]);
-            const image_url = [];
-            image_url.push(INGREDIANT_IMAGE_URL + filteredIngredients[i] + ".png");
+            const url = INGREDIANT_IMAGE_URL + filteredIngredients[i] + '.png';
+            image_url.push(url);
             console.log(image_url[i]);
+
             const ingrediant = document.createElement('div');
             ingrediant.classList.add('ingredient');
             let tag = i + 1;
             ingrediant.innerHTML = `
-            <!-- <img src="${INGREDIANT_IMAGE_URL + filteredIngredients[i] + ".png"} style="max-width: 10vw;" "> -->
+            <img src="${image_url[i]}" style="max-width: 10vw;" ">
                         <span>${[tag]}. ${filteredIngredients[i]}</span>
                         <span>${filteredMeasures[i]}</span>
                     `;

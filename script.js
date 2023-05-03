@@ -9,7 +9,7 @@ const CATEGORY_CLICK_URL = "https://www.themealdb.com/api/json/v1/1/filter.php?c
 const MEAL_SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
 const INGREDIANT_IMAGE_URL = "https://www.themealdb.com/images/ingredients/";
 const SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
-
+const INGREDIANT_SEARCH_URL = 'https://www.themealdb.com/api/json/v1/1/filter.php?i=';
 
 function loading() {
     preloader.style.display = "none";
@@ -59,6 +59,7 @@ function open_category(url, category) {
     fetch(url + category).then(res => res.json()).then(data => {
         console.log(data);
         categories.innerHTML = ``;
+        food.innerHTML = ``;
         if (data.meals != 'null') {
             for (let i = 0; i < data.meals.length; i++) {
                 const category = document.createElement('div');
@@ -137,14 +138,23 @@ function open_food(url, id) {
 
             const ingrediant = document.createElement('div');
             ingrediant.classList.add('ingredient');
-            let tag = i + 1;
             ingrediant.innerHTML = `
+            <div id="${filteredIngredients[i]}" >
             <img src="${image_url[i]}" style="max-width: 10vw;" ">
-                        <span>${[tag]}. ${filteredIngredients[i]}</span>
+                        <span >${filteredIngredients[i]}</span>
                         <span>${filteredMeasures[i]}</span>
+                        </div>
+
+            
                     `;
 
             document.getElementById("ingredients").appendChild(ingrediant);
+            let id = filteredIngredients[i];
+            document.getElementById(id).addEventListener('click', () => {
+                console.log(id);
+                open_category(INGREDIANT_SEARCH_URL, id);
+            });
+
 
         }
         const instructions = document.createElement('div');

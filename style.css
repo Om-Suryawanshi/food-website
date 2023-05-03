@@ -244,15 +244,17 @@ span {
     padding: 20px;
 }
 
-.ingredient {
+
+.ingredient div {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px 15px;
     flex-direction: column;
+    cursor: pointer;
 }
 
-.ingredient img {
+.ingredient div img {
     max-width: 10vw;
 }
 

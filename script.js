@@ -1,171 +1,538 @@
-const categories = document.getElementById("categories");
-const food = document.getElementById("food");
-const search = document.querySelector('header div input');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400&display=swap');
 
-const CATEGORIES_URL = "https://www.themealdb.com/api/json/v1/1/categories.php";
-const CATEGORY_CLICK_URL = "https://www.themealdb.com/api/json/v1/1/filter.php?c=";
-const MEAL_SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
-const INGREDIANT_IMAGE_URL = "https://www.themealdb.com/images/ingredients/";
-const SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
-
-
-function get_categories(url) {
-    categories.innerHTML = ``;
-
-    fetch(url).then(res => res.json()).then(data => {
-        console.log(data);
-
-        for (let i = 0; i < data.categories.length; i++) {
-            const category = document.createElement('div');
-            category.classList.add('category');
-            category.innerHTML = `
-            <div id="${data.categories[i].idCategory}">
-        <h1>${data.categories[i].strCategory}</h1>
-        <img src="${data.categories[i].strCategoryThumb}">
-        </div>
-        `
-            categories.appendChild(category);
-            let id = data.categories[i].idCategory;
-            document.getElementById(id).addEventListener('click', () => {
-                console.log(data.categories[i].strCategory);
-                let category = data.categories[i].strCategory;
-                open_category(CATEGORY_CLICK_URL, category);
-            })
-
-        }
-
-    })
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
 
-function open_category(url, category) {
-    fetch(url + category).then(res => res.json()).then(data => {
-        console.log(data);
-        categories.innerHTML = ``;
-        if (data.meals != 'null') {
-            for (let i = 0; i < data.meals.length; i++) {
-                const category = document.createElement('div');
-                category.classList.add('category');
-                category.innerHTML = `
-            <div id="${data.meals[i].idMeal}">
-        <h1>${data.meals[i].strMeal}</h1>
-        <img src="${data.meals[i].strMealThumb}">
-        </div>
-        `
-                categories.appendChild(category);
-                let id = data.meals[i].idMeal;
-                document.getElementById(id).addEventListener('click', () => {
-                    console.log(id);
-                    open_food(MEAL_SEARCH_URL, id);
-                })
+/* Preloader */
 
-            }
-        }
-        else {
-            category.innerHTML = `<h1>No Result Found</h1>`
-        }
-    });
+#loading {
+    width: 100%;
+    height: 100vh;
+    background: #212A3E;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* display: none; */
 }
 
-
-function open_food(url, id) {
-    fetch(url + id).then(res => res.json()).then(data => {
-        console.log(data);
-
-        // Filter list 
-
-        const meal = data.meals[0];
-        const ingredients = [];
-        const measures = [];
-
-        for (let i = 1; i <= 20; i++) {
-            const thisIngredient = meal[`strIngredient${i}`];
-            const thisMeasure = meal[`strMeasure${i}`];
-            if (thisIngredient) {
-                ingredients.push(thisIngredient);
-                measures.push(thisMeasure);
-            }
-        }
-
-        const filteredIngredients = ingredients.filter(Boolean);
-        const filteredMeasures = measures.filter(Boolean);
-
-        console.log(filteredIngredients);
-        console.log(filteredMeasures);
-
-
-        categories.innerHTML = ``;
-        food.innerHTML = ``;
-        food.innerHTML = `
-        <div class="title">
-            <h1>${data.meals[0].strMeal}</h1>
-        </div>
-        <div class="food-container" id="food-container">
-            <div class="data">
-                <img src="${data.meals[0].strMealThumb}">
-                <span>${data.meals[0].strArea}</span>
-                <span>${data.meals[0].strCategory}</span>
-            </div>
-            <div class="ingredients" id="ingredients">
-            </div>
-        </div>
-
-        `
-        for (let i = 0; i <= filteredIngredients.length - 1; i++) {
-            console.log(filteredIngredients[i]);
-            const image_url = [];
-            image_url.push(INGREDIANT_IMAGE_URL + filteredIngredients[i] + ".png");
-            console.log(image_url[i]);
-            const ingrediant = document.createElement('div');
-            ingrediant.classList.add('ingredient');
-            let tag = i + 1;
-            ingrediant.innerHTML = `
-            <!-- <img src="${INGREDIANT_IMAGE_URL + filteredIngredients[i] + ".png"} style="max-width: 10vw;" "> -->
-                        <span>${[tag]}. ${filteredIngredients[i]}</span>
-                        <span>${filteredMeasures[i]}</span>
-                    `;
-
-            document.getElementById("ingredients").appendChild(ingrediant);
-
-        }
-        const instructions = document.createElement('div');
-        instructions.classList.add('instructions');
-        const youtube_url = data.meals[0].strYoutube;
-        const videoId = youtube_url.split("=")[1];
-        instructions.innerHTML = `
-        <div class="instructions">
-            <h1>Instructions</h1>
-            <span>${data.meals[0].strInstructions}</span>
-        </div>
-        <div class="youtube">
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}"
-                title="YouTube video player" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowfullscreen></iframe>
-        </div>`;
-        food.appendChild(instructions);
-    })
+/* Preloader */
+.loader {
+    height: 150px;
+    width: 100px;
+    border-radius: 55px 55px 10px 10px;
+    position: relative;
+    background: #FF3D00;
+    background-image: linear-gradient(0deg,
+            #f63a99 25%,
+            #30dcf6 25%,
+            #30dcf6 25%,
+            #30dcf6 50%,
+            #f2d200 50%,
+            #f2d200 50%,
+            #f2d200 75%,
+            #70ca5c 75%);
+    background-position: 0px 0px;
+    background-size: auto 175px;
+    background-repeat: repeat-y;
+    animation: colorShift 6s linear infinite;
 }
 
+.loader:before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    bottom: 15px;
+    width: 15px;
+    height: 100px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.5);
+}
 
-// Search meal
+.loader:after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translate(-50%, 0);
+    box-shadow: 0 15px 2px rgba(0, 0, 0, 0.25) inset;
+    width: 32px;
+    height: 45px;
+    background: #E09C5F;
+    border-radius: 0 0 12px 12px;
+}
 
-search.addEventListener('keypress', function (e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const data = search.value;
-        console.log(data);
-        search_meal(SEARCH_URL, data);
-
+@keyframes colorShift {
+    to {
+        background-position: 0 175px
     }
-})
-
-
-function search_meal(url, data) {
-    fetch(url + data).then(res => res.json()).then(data => {
-        console.log(data);
-        food.innerHTML = ``;
-    })
-    open_category(url, data);
 }
 
-get_categories(CATEGORIES_URL);
+
+
+body {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex-direction: column;
+    background-color: #212A3E;
+    font-family: Montserrat, serif;
+    overflow: hidden;
+}
+
+/* HEader */
+
+header {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+
+.form {
+    --input-text-color: #fff;
+    --input-bg-color: #283542;
+    --focus-input-bg-color: transparent;
+    --text-color: #949faa;
+    --active-color: #1b9bee;
+    --width-of-input: 200px;
+    --inline-padding-of-input: 1.2em;
+    --gap: 0.9rem;
+}
+
+/* form style */
+.container-input {
+    position: relative;
+}
+
+.input {
+    width: 150px;
+    padding: 10px 0px 10px 40px;
+    border-radius: 9999px;
+    border: solid 1px #333;
+    transition: all .2s ease-in-out;
+    outline: none;
+    opacity: 0.8;
+}
+
+.container-input svg {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translate(0, -50%);
+}
+
+.input:focus {
+    opacity: 1;
+    width: 250px;
+}
+
+/* Categories */
+
+.grid {
+    display: grid;
+}
+
+.categories {
+    place-items: center;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.category {
+    margin-top: 50px;
+}
+
+.category div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column-reverse;
+    transition: .5s;
+    /* border: 1px solid white; */
+}
+
+.category div h1 {
+    font-family: Montserrat, serif;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: 500;
+    font-size: 32px;
+    opacity: 0;
+    word-wrap: break-word;
+}
+
+
+.category div img,
+h1 {
+    max-width: 20vw;
+    width: 100%;
+}
+
+.category:hover {
+    border-radius: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    transition: .5s;
+    cursor: pointer;
+}
+
+.category:hover>div img {
+    border-radius: 5px;
+    filter: blur(8rem);
+}
+
+
+.category:hover>div h1 {
+    opacity: 1;
+    transition: .5s;
+}
+
+/* Food */
+.food {
+    margin-top: 50px;
+}
+
+.food-container {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    place-items: center;
+    background-color: #394867;
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+}
+
+/* = */
+h1,
+span {
+    color: white;
+}
+
+.data {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 15px;
+    padding: 50px;
+}
+
+.data img {
+    max-width: 20vw;
+    border-radius: 50%;
+}
+
+.ingrediants {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.ingrediant {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15px;
+}
+
+.ingrediant img {
+    max-width: 10vw;
+}
+
+
+.instructions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    line-height: 3;
+    padding: 50px;
+}
+
+.youtube {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* Footer */
+
+footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.card svg {
+    height: 25px;
+}
+
+.card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e7e7e7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    height: 50px;
+    width: 200px;
+}
+
+.card::before,
+.card::after {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    width: 50%;
+    height: 100%;
+    transition: 0.25s linear;
+    z-index: 1;
+}
+
+.card::before {
+    content: "";
+    left: 0;
+    justify-content: flex-end;
+    background-color: #4d60b6;
+}
+
+.card::after {
+    content: "";
+    right: 0;
+    justify-content: flex-start;
+    background-color: #4453a6;
+}
+
+.card:hover {
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+.card:hover span {
+    opacity: 0;
+    z-index: -3;
+}
+
+.card:hover::before {
+    opacity: 0.5;
+    transform: translateY(-100%);
+}
+
+.card:hover::after {
+    opacity: 0.5;
+    transform: translateY(100%);
+}
+
+.card span {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: whitesmoke;
+    font-family: 'Fira Mono', monospace;
+    font-size: 24px;
+    font-weight: 700;
+    opacity: 1;
+    transition: opacity 0.25s;
+    z-index: 2;
+}
+
+.card .social-link {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 25%;
+    height: 100%;
+    color: whitesmoke;
+    font-size: 24px;
+    text-decoration: none;
+    transition: 0.25s;
+}
+
+.card .social-link svg {
+    text-shadow: 1px 1px rgba(31, 74, 121, 0.7);
+    transform: scale(1);
+}
+
+.card .social-link:hover {
+    background-color: rgba(249, 244, 255, 0.774);
+    animation: bounce_613 0.4s linear;
+}
+
+@keyframes bounce_613 {
+    40% {
+        transform: scale(1.4);
+    }
+
+    60% {
+        transform: scale(0.8);
+    }
+
+    80% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* width */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+/* Tablet Media Screen */
+
+@media screen and (max-width: 720px) {
+    body {
+        /* background: red; */
+        overflow-x: hidden;
+    }
+
+    .categories {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.5rem;
+        padding: 30px;
+    }
+
+    .category div img {
+        max-width: 30vw;
+    }
+
+    .category div h1 {
+        font-size: 20px;
+        position: relative;
+        opacity: 1;
+        padding: 5px;
+    }
+
+
+    .category:hover>div img {
+        border-radius: 5px;
+        filter: blur(0);
+    }
+
+    .food {
+        margin-top: 5px;
+    }
+
+    .title h1 {
+        max-width: 100vw;
+        margin-bottom: 10px;
+    }
+
+    .data {
+        justify-content: center;
+    }
+
+    .ingredients {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .instructions {
+        line-height: 2;
+    }
+
+    .youtube iframe {
+        width: 800%;
+    }
+
+}
+
+/* Mobile Screen */
+
+@media screen and (max-width: 480px) {
+    /* body {
+        background: green;
+    } */
+
+    .categories {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .category div h1 {
+        position: relative;
+        opacity: 1;
+        padding: 5px;
+    }
+
+    .category:hover>div img {
+        border-radius: 5px;
+        filter: blur(0);
+    }
+
+    .category div img {
+        max-width: 40vw;
+    }
+
+    .food-container {
+        grid-template-columns: 1fr;
+    }
+
+    .data img {
+        max-width: 80vw;
+    }
+
+    .data span {
+        margin-top: 10px;
+    }
+
+    .ingredients {
+        padding: 30px;
+    }
+
+    .ingredient {
+        text-align: center;
+        padding: 5px;
+    }
+
+    .instructions {
+        padding: 30px;
+    }
+
+    .instructions h1 {
+        max-width: 100vw;
+    }
+}

@@ -276,6 +276,11 @@ span {
     padding: 20px;
 }
 
+/* Area */
+.area:hover, .ingredient_hover:hover {
+    color: gray !important;
+}
+
 /* Footer */
 
 footer {
@@ -455,6 +460,7 @@ footer {
         position: relative;
         opacity: 1;
         padding: 5px;
+        text-align: center;
     }
 
 
@@ -507,6 +513,7 @@ footer {
         position: relative;
         opacity: 1;
         padding: 5px;
+        font-size: 18px;
     }
 
     .category:hover>div img {

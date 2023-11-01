@@ -2,13 +2,16 @@ import sqlite3
 
 # Basic setup
 # Connection
+
+
 def connect():
     conn = sqlite3.connect('database/testdb.db')
     cursor = conn.cursor()
     return conn, cursor
 
-# Modifications needed are 
-# Store the password in hashed form and when the user inputs the password compair the hashes from the input to the db (Currently stored in plain text)
+# ip TEXT,
+# geoloc TEXT
+
 
 def create_users_table():
     conn, cursor = connect()
@@ -16,12 +19,65 @@ def create_users_table():
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY,
         username TEXT UNIQUE,
-        password TEXT
+        password TEXT,
+        ip TEXT
     )
     ''')
     conn.commit()
     conn.close()
     print('create_users_table Sucessfull')
+
+
+def create_login_log_table():
+    conn, cursor = connect()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS loginLog (
+        id INTEGER PRIMARY KEY,
+        username TEXT,
+        ip TEXT
+    )
+    ''')
+    conn.commit()
+    conn.close()
+    print('create_Login_log Sucessfull')
+
+def insert_login_log(username, ip):
+    conn, cursor = connect()
+    cursor.execute('''
+    INSERT OR IGNORE INTO LoginLog (username, ip) VALUES (?, ?)
+    ''', (username, ip))
+    conn.commit()
+    conn.close()
+
+def create_table_user_data():
+    conn, cursor = connect()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS userData (
+        id INTEGER PRIMARY KEY,
+        username TEXT,
+        ip TEXT,
+        country TEXT,
+        regionname TEXT,
+        city TEXT,
+        zip TEXT, 
+        lat TEXT,
+        lon TEXT,
+        timezone TEXT,
+        isp TEXT
+    )
+''')
+    conn.commit()
+    conn.close()
+    print('create_users_data_table Sucessfull')
+
+
+def insert_user_Data(username, ip, country, region, city, user_zip, latitude, longitude, isp, timezone):
+    conn, cursor = connect()
+    cursor.execute('''
+    INSERT OR IGNORE INTO userData (username, ip, country, regionname, city, zip, lat, lon, timezone, isp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (username, ip, country, region, city, user_zip, latitude, longitude, timezone, isp))
+    conn.commit()
+    conn.close()
 
 
 def create_table_likedMeals():
@@ -38,20 +94,21 @@ def create_table_likedMeals():
     print('create_table_likedMeals Successfull')
 
 
-def insert_user(username, password):
+def insert_user(username, password, ip):
     conn, cursor = connect()
     cursor.execute('''
-    INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)
-    ''', (username, password))
+    INSERT OR IGNORE INTO users (username, password, ip) VALUES (?, ?, ?)
+    ''', (username, password, ip))
     conn.commit()
     conn.close()
 
-def update_password(username, password):
+
+def update_password(username, password, ip):
     conn, cursor = connect()
     # Insert code here
     cursor.execute('''
-    REPLACE INTO users (username, password) VALUES (?, ?)
-''', (username, password))
+    REPLACE INTO users (username, password, ip) VALUES (?, ?, ?)
+''', (username, password, ip))
     conn.commit()
     conn.close()
 
@@ -104,21 +161,24 @@ def get_all_users():
 def db():
     create_users_table()
     create_table_likedMeals()
+    create_table_user_data()
+    create_login_log_table()
+
 
 # Create tables
 db()
 
 
 # Insert user data
-# insert_user('admin', '1234')
-
+# insert_user('adm', '123', '192.168.0.1')
+# update_password('adm', '12', '192.168.0.3')
 # Insert liked meals
 # liked_Meals('admin', '123453,231232')
 # liked_Meals('admin', '231233')
 # liked_Meals('admin', '343234')
 
 # Retrieve user data
-# data = get_user('admin')
+# data = get_user('adm')
 # print('User-data',data)
 
 # Retrieve liked meals

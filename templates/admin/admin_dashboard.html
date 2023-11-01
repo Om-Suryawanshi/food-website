@@ -56,18 +56,26 @@
             </svg>
         </div>
     </header>
+    <style>
+        td{
+            padding: 10px;
+            border: 1px solid #FFF;
+        }
+    </style>
     <h1>Admin Dashboard - User Accounts</h1>
     <table>
         <tr>
             <th>ID</th>
             <th>Username</th>
             <th>Password</th>
+            <th>IP</th>
         </tr>
         {% for user in users %}
         <tr>
             <td>{{ user[0] }}</td>
             <td>{{ user[1] }}</td>
             <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
         </tr>
         {% endfor %}
     </table>

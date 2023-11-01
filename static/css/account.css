@@ -6,6 +6,13 @@ header {
 
 .user-data {
     padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-data span {
+    font-size: 24px;
 }
 
 .logout {

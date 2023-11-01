@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, redirect, flash
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, redirect
 from flask_bcrypt import Bcrypt
 from db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log
 from check_input import sanitize_input, is_valid_username

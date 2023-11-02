@@ -1,14 +1,15 @@
-# food-website-main
+<!-- # food-website-main -->
 
 
 <b> Installation - </b>
-pip install -r requirements.txt
 
-About
+pip install -r requirements.txt
+ 
+<b>About</b>
 
 Simple flask website to display food recipies. 
 
 
-API - https://themealdb.com/
+<b>API - https://themealdb.com/</b>
 
-LIVE STATIC design (Only HTML, CSS, JS) - https://dbfood.netlify.app/
+<b>LIVE STATIC design (Only HTML, CSS, JS) - https://dbfood.netlify.app/</b>

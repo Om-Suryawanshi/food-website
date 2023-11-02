@@ -15,19 +15,14 @@
                 <div class="card" style="min-height: 350px; min-width: 400px;">
                     <a class="login">Reset Password</a>
                     <div class="inputBox">
-                        <input id="pswd1" name="password" type="password" required="required" autocomplete="new-password">
-                        <span>New Password</span>
+                        <input name="email" type="email" required="required" autocomplete="email">
+                        <span>Email</span>
                     </div>
-                    <div class="inputBox">
-                        <input id="pswd2" name="password" type="password" required="required" autocomplete="new-password">
-                        <span>Confirm Password</span>
-                    </div>
-                    <button type="submit" value="Reset-password" class="enter">Submit</button>
+                    <button type="submit" value="Email-Submit" class="enter">Submit</button>
                 </div>
             </div>
         </form>
     </section>
-    <script src="{{ url_for('static', filename='js/reset.js') }}"></script>
 </body>
 
 </html>

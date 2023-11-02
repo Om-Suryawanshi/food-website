@@ -87,8 +87,8 @@ function open_food(url, id) {
         let liked_meal_id = data.meals[0].idMeal;
         document.getElementById(liked_meal_id).addEventListener('click', () => {
             // addLikedMeal(liked_meal_id);
-            document.getElementById('heartFill').style.fill='#FFFFFF'
-            alert()
+            removeLikedMeal(liked_meal_id);
+            document.getElementById('heartFill').style.fill='#FFFFFF';
         })
 
         // Area 
@@ -96,7 +96,7 @@ function open_food(url, id) {
         document.getElementById(area).addEventListener('click', () => {
             // console.log(area);
             // open_category(AREA_FILER_URL, area);
-            alert()
+            alert();
         })
 
         // Ingredients 
@@ -143,23 +143,40 @@ function open_food(url, id) {
         allowfullscreen></iframe>
         </div>`;
         food.appendChild(instructions);
-        console.log(data.meals[0]);
+        // console.log(data.meals[0]);
     })
 }
 
 
 function getLikedMeals() {
     fetch('/get_liked_meals').then(res => res.json()).then(data => {
-        console.log(data)
-        console.log(data.likedMeals.length)
+        // console.log(data)
+        // console.log(data.likedMeals.length)
         let i = 0
         for (i = 0; i < data.likedMeals.length; i++) {
-            console.log(data.likedMeals[i])
+            // console.log(data.likedMeals[i])
             get_liked_meal(MEAL_SEARCH_URL, data.likedMeals[i])
         }
     })
 }
 
 
+function removeLikedMeal(idMeal) {
+    // Send a POST request to add a meal
+    fetch('/remove_liked_meals', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idMeal: idMeal }),
+    })
+        .then(response => response.json())
+        .then(result => {
+            console.log(result);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
 
 getLikedMeals()

@@ -77,6 +77,7 @@ def login():
             # Validate username
             user_data = get_user(username)
 
+            # user_data[2] == enc pass
             if user_data and bcrypt.check_password_hash(user_data[2], password):
                 # Successful login
                 user_ip = request.remote_addr
@@ -93,31 +94,31 @@ def login():
     return render_template('login.html')
 
 # Password Reset / Forgot Password 
-# @app.route('/reset_password', methods=['GET', 'POST'])
-# def reset_password():
-#     if request.method == 'GET':
-#         # Display the password reset form with a token input field
-#         return render_template('reset_password.html', token=request.args.get('token'))
+@app.route('/reset_password', methods=['GET', 'POST'])
+def reset_password():
+    if request.method == 'GET':
+        # Display the password reset form with a token input field
+        return render_template('reset_password.html', token=request.args.get('token'))
 
-#     if request.method == 'POST':
-#         # Validate the token, check expiration, and update the password
-#         token = request.form.get('token')
-#         new_password = request.form.get('new_password')
+    if request.method == 'POST':
+        # Validate the token, check expiration, and update the password
+        token = request.form.get('token')
+        new_password = request.form.get('new_password')
 
-#         # Verify the token (e.g., check it against a database)
-#         if is_valid_reset_token(token):
-#             # Update the user's password with the new_password
-#             username = get_username_by_reset_token(token)
-#             update_password(username, new_password)
+        # Verify the token (e.g., check it against a database)
+        # if is_valid_reset_token(token):
+        #     # Update the user's password with the new_password
+        #     username = get_username_by_reset_token(token)
+        #     update_password(username, new_password)
 
-#             # Invalidate the token (mark it as used)
-#             mark_reset_token_as_used(token)
+        #     # Invalidate the token (mark it as used)
+        #     mark_reset_token_as_used(token)
 
-#             flash("Password reset successful. You can now log in with your new password.")
-#             return redirect(url_for('login'))
-#         else:
-#             flash("Invalid or expired token. Please request another password reset.")
-#             return redirect(url_for('reset_password'))
+        #     flash("Password reset successful. You can now log in with your new password.")
+        #     return redirect(url_for('login'))
+        # else:
+        #     flash("Invalid or expired token. Please request another password reset.")
+        #     return redirect(url_for('reset_password'))
 
 # Logout
 @app.route('/logout')
@@ -161,6 +162,27 @@ def get_liked_meals():
     return jsonify({'likedMeals': meal,
                     'username': username})
 
+
+@app.route('/remove_liked_meals', methods=['POST'])
+def remove_liked_meals():
+    meal_data = request.json
+
+    if 'idMeal' in meal_data:
+        username = session.get('username')
+        idMeal = meal_data['idMeal']
+
+        # Check if the meal is already liked by the user
+        liked_meals = get_liked_Meals_db(username)
+        meal = [meal[2] for meal in liked_meals]
+
+        if idMeal in meal:
+            remove_liked_Meals(username, idMeal)
+            return jsonify({'message': 'Meal removed Successfully'})
+        else:
+            return jsonify({'message': 'Meal Not in liked meals'})
+    else:
+        return jsonify({'error': 'Invalid request data'})
+    
 
 def fetch_geo(user_ip):
     ip_api_url = f"http://ip-api.com/json/{user_ip}"

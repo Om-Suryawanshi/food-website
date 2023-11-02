@@ -183,7 +183,7 @@ function open_food(url, id) {
         allowfullscreen></iframe>
         </div>`;
         food.appendChild(instructions);
-        console.log(data.meals[0]);
+        // console.log(data.meals[0]);
     })
 }
 
@@ -230,5 +230,3 @@ function addLikedMeal(idMeal) {
             console.error('Error:', error);
         });
 }
-
-

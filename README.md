@@ -1,10 +1,11 @@
 # food-website-main
 
 
-# Installation -
+<b> Installation - </b>
 pip install -r requirements.txt
 
-# About
+About
+
 Simple flask website to display food recipies. 
 
 

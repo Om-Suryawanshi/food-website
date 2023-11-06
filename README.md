@@ -22,15 +22,15 @@ Change this line:
 
 ```python
 app.run(host='192.168.10.2', port=80, debug=True)
-
+```
 to either:
-
+```
 app.run()
-
+```
 or change the host to the IPv4 address of your device. You can find your device's IPv4 address by running the command ipconfig in the command prompt:
-
+```
 IPv4 Address. . . . . . . . . . . : 192.168.10.5
-
+```
 Update the app.run() line accordingly.
 
 Now, you are ready to run the website locally.

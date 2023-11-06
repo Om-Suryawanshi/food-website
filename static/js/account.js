@@ -18,10 +18,10 @@ function get_liked_meal(url, id) {
             category.classList.add('category');
             category.innerHTML = `
             <div id="${data.meals[i].idMeal}">
-            <h1>${data.meals[i].strMeal}</h1>
-            <img src="${data.meals[i].strMealThumb}">
+                <h1>${data.meals[i].strMeal}</h1>
+                <img src="${data.meals[i].strMealThumb}">
             </div>
-`
+            `
             categories.appendChild(category);
             let id = data.meals[i].idMeal;
             document.getElementById(id).addEventListener('click', () => {
@@ -40,7 +40,6 @@ function open_food(url, id) {
         // console.log(data);
 
         // Filter list 
-
         const meal = data.meals[0];
         const ingredients = [];
         const measures = [];
@@ -58,37 +57,33 @@ function open_food(url, id) {
         const filteredIngredients = ingredients.filter(Boolean);
         const filteredMeasures = measures.filter(Boolean);
 
-        // console.log(filteredIngredients);
-        // console.log(filteredMeasures);
-
-
         categories.innerHTML = ``;
         food.innerHTML = ``;
         food.innerHTML = `
-<div class="title">
-    <h1>${data.meals[0].strMeal}</h1>
-</div>
-<div class="food-container" id="food-container">
-    <div class="data">
-        <img src="${data.meals[0].strMealThumb}">
-        <span class='area' id='${data.meals[0].strArea}' style='cursor: pointer;'>${data.meals[0].strArea}</span>
-        <span>${data.meals[0].strCategory}</span>
-        <span class='like' id='${data.meals[0].idMeal}' style='color: white; cursor: pointer;'>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" id="heart"><path id='heartFill' fill="#f05542" d="M5.301 3.002c-.889-.047-1.759.247-2.404.893-1.29 1.292-1.175 3.49.26 4.926l.515.515L8.332 14l4.659-4.664.515-.515c1.435-1.437 1.55-3.634.26-4.926-1.29-1.292-3.483-1.175-4.918.262l-.516.517-.517-.517C7.098 3.438 6.19 3.049 5.3 3.002z"></path></svg>
-        </span>
-    </div>
-    <div class="ingredients" id="ingredients">
-    </div>
-</div>
-
-`
+        <div class="title">
+            <h1>${data.meals[0].strMeal}</h1>
+        </div>
+        <div class="food-container" id="food-container">
+        <div class="data">
+            <img src="${data.meals[0].strMealThumb}">
+            <span class='area' id='${data.meals[0].strArea}' style='cursor: pointer;'>${data.meals[0].strArea}</span>
+            <span>${data.meals[0].strCategory}</span>
+            <span class='like' id='${data.meals[0].idMeal}' style='color: white; cursor: pointer;'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="24" id="heart"><path id='heartFill' fill="#f05542" d="M5.301 3.002c-.889-.047-1.759.247-2.404.893-1.29 1.292-1.175 3.49.26 4.926l.515.515L8.332 14l4.659-4.664.515-.515c1.435-1.437 1.55-3.634.26-4.926-1.29-1.292-3.483-1.175-4.918.262l-.516.517-.517-.517C7.098 3.438 6.19 3.049 5.3 3.002z"></path></svg>
+            </span>
+        </div>
+        <div class="ingredients" id="ingredients">
+        </div>
+        </div>
+        `
         // Liked Meals
+
         // Unlike 
         let liked_meal_id = data.meals[0].idMeal;
         document.getElementById(liked_meal_id).addEventListener('click', () => {
             // addLikedMeal(liked_meal_id);
             removeLikedMeal(liked_meal_id);
-            document.getElementById('heartFill').style.fill='#FFFFFF';
+            document.getElementById('heartFill').style.fill = '#FFFFFF';
         })
 
         // Area 
@@ -109,10 +104,10 @@ function open_food(url, id) {
             const ingrediant = document.createElement('div');
             ingrediant.classList.add('ingredient');
             ingrediant.innerHTML = `
-    <div id="${filteredIngredients[i]}" >
-    <img src="${image_url[i]}" style="max-width: 10vw;" ">
-                <span class='ingredient_hover'>${filteredIngredients[i]}</span>
-                <span>${filteredMeasures[i]}</span>
+                <div id="${filteredIngredients[i]}" >
+                    <img src="${image_url[i]}" style="max-width: 10vw;" ">
+                    <span class='ingredient_hover'>${filteredIngredients[i]}</span>
+                    <span>${filteredMeasures[i]}</span>
                 </div>
             `;
 
@@ -123,8 +118,6 @@ function open_food(url, id) {
                 // open_category(INGREDIANT_SEARCH_URL, id);
                 alert()
             });
-
-
         }
         // Instructions
         const instructions = document.createElement('div');
@@ -132,16 +125,17 @@ function open_food(url, id) {
         const youtube_url = data.meals[0].strYoutube;
         const videoId = youtube_url.split("=")[1];
         instructions.innerHTML = `
-<div class="instruction">
-    <h1>Instructions</h1>
-    <span>${data.meals[0].strInstructions}</span>
-</div>
-<div class="youtube">
-    <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}"
-        title="YouTube video player" frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen></iframe>
-        </div>`;
+            <div class="instruction">
+                <h1>Instructions</h1>
+                <span>${data.meals[0].strInstructions}</span>
+            </div>
+            <div class="youtube">
+                <iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}"
+                    title="YouTube video player" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen>
+                </iframe>
+            </div>`;
         food.appendChild(instructions);
         // console.log(data.meals[0]);
     })

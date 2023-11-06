@@ -5,7 +5,7 @@ def sanitize_input(input_string):
     # Remove leading and trailing spaces
     sanitized_input = input_string.strip()
     # Prevent SQL injection by removing special characters
-    sanitized_input = re.sub(r'[;\'"\\]', '', sanitized_input)
+    sanitized_input = re.sub(r'[(;\'"\\)]', '', sanitized_input)
     return sanitized_input
 
 

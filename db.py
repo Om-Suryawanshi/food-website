@@ -1,4 +1,5 @@
 import sqlite3
+import datetime
 
 # Basic setup
 # Connection
@@ -34,20 +35,24 @@ def create_login_log_table():
     CREATE TABLE IF NOT EXISTS loginLog (
         id INTEGER PRIMARY KEY,
         username TEXT,
-        ip TEXT
+        ip TEXT,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     ''')
     conn.commit()
     conn.close()
-    print('create_Login_log Sucessfull')
+    print('create_Login_log Successful')
+
+
 
 def insert_login_log(username, ip):
     conn, cursor = connect()
     cursor.execute('''
-    INSERT OR IGNORE INTO LoginLog (username, ip) VALUES (?, ?)
-    ''', (username, ip))
+    INSERT OR IGNORE INTO LoginLog (username, ip, timestamp) VALUES (?, ?, ?)
+    ''', (username, ip, datetime.datetime.now()))
     conn.commit()
     conn.close()
+
 
 def create_table_user_data():
     conn, cursor = connect()
@@ -129,7 +134,6 @@ def remove_liked_Meals(username, idMeal):
     DELETE FROM likedMeals
     WHERE username = ? AND likedMeals LIKE ?
     ''', (username, f'%{idMeal}%'))
-
     conn.commit()
     conn.close()
 
@@ -139,15 +143,65 @@ def get_user(username):
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
     user_data = cursor.fetchone()
     conn.close()
-    return user_data
+
+    if user_data:
+        user_dict = {
+            'id': user_data[0],
+            'username': user_data[1],
+            'password': user_data[2],
+            'ip': user_data[3]
+        }
+        return user_dict
+    else:
+        return None
 
 
 def get_liked_Meals_db(username):
     conn, cursor = connect()
     cursor.execute('SELECT * FROM likedMeals WHERE username = ?', (username,))
     user_liked_meals = cursor.fetchall()
+    conn.commit()
     conn.close()
     return user_liked_meals
+
+def get_user_data(username):
+    conn, cursor = connect()
+    cursor.execute('SELECT * FROM userData WHERE username = ?', (username,))
+    user_data = cursor.fetchone()  # Use fetchone() to retrieve a single row
+    conn.close()
+
+    if user_data:
+        user_data_dict = {
+            'id': user_data[0],
+            'username': user_data[1],
+            'ip': user_data[2],
+            'country': user_data[3],
+            'regionname': user_data[4],
+            'city': user_data[5],
+            'zip': user_data[6],
+            'lat': user_data[7],
+            'lon': user_data[8],
+            'timezone': user_data[9],
+            'isp': user_data[10]
+        }
+        return user_data_dict
+    else:
+        return None
+
+
+
+def get_login_log(username):
+    conn, cursor = connect()
+    cursor.execute('SELECT * FROM LoginLog WHERE username = ?', (username, ))
+    login_log = cursor.fetchall()
+    if login_log:
+        login_data = [{'timestamp': log[3], 'ip': log[2]} for log in login_log]
+    else:
+        login_data = []
+    conn.commit()
+    conn.close()
+    return login_data
+
 
 
 def get_all_users():
@@ -167,28 +221,3 @@ def db():
 
 # Create tables
 db()
-
-
-# Insert user data
-# insert_user('adm', '123', '192.168.0.1')
-# update_password('adm', '12', '192.168.0.3')
-# Insert liked meals
-# liked_Meals('admin', '123453,231232')
-# liked_Meals('admin', '231233')
-# liked_Meals('admin', '343234')
-
-# Retrieve user data
-# data = get_user('adm')
-# print('User-data',data)
-
-# Retrieve liked meals
-# liked_meals = get_liked_Meals('admin')
-# print('Liked Meals',liked_meals)
-
-# Remove a liked meal
-# remove_liked_Meals('admin', '231232')
-# remove_liked_Meals('admin', '343234')
-
-# Retrieve updated liked meals
-# updated_liked_meals = get_liked_Meals('admin')
-# print('Updated Liked meals',updated_liked_meals)

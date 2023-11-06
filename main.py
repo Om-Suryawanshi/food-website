@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, redirect
 from flask_bcrypt import Bcrypt
-from db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log
+from db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
 from check_input import sanitize_input, is_valid_username
-import requests
+from geo import fetch_geo
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -28,6 +28,7 @@ def account():
         return redirect(url_for('login'))
 
 
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -51,9 +52,9 @@ def register():
                 # Login Log
                 insert_login_log(username, user_ip)
                 # Enable After Live Upload
-                # query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
-                # insert_user_Data(username, user_ip, user_country, user_region, user_city,
-                #                  user_zip, user_latitude, user_longitude, user_timezone, user_isp)
+                query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
+                insert_user_Data(username, user_ip, user_country, user_region, user_city,
+                                 user_zip, user_latitude, user_longitude, user_timezone, user_isp)
                 # Create new User
                 insert_user(username, hashed_password, user_ip)
                 # Cookie
@@ -74,11 +75,11 @@ def login():
         password = sanitize_input(request.form.get('password'))
 
         if username and password:
-            # Validate username
+            # # Validate username
             user_data = get_user(username)
 
             # user_data[2] == enc pass
-            if user_data and bcrypt.check_password_hash(user_data[2], password):
+            if user_data and bcrypt.check_password_hash(user_data['password'], password):
                 # Successful login
                 user_ip = request.remote_addr
                 # Login Log
@@ -106,19 +107,36 @@ def reset_password():
         new_password = request.form.get('new_password')
 
         # Verify the token (e.g., check it against a database)
-        # if is_valid_reset_token(token):
-        #     # Update the user's password with the new_password
-        #     username = get_username_by_reset_token(token)
-        #     update_password(username, new_password)
 
-        #     # Invalidate the token (mark it as used)
-        #     mark_reset_token_as_used(token)
 
-        #     flash("Password reset successful. You can now log in with your new password.")
-        #     return redirect(url_for('login'))
-        # else:
-        #     flash("Invalid or expired token. Please request another password reset.")
-        #     return redirect(url_for('reset_password'))
+# user/admin
+@app.route('/user/<string:username>', methods=['GET'])
+def user(username):
+    if 'username' in session:
+        # User is logged in, display their account page
+        logged_in_username = session['username']
+
+        if logged_in_username == 'admin':
+            username = sanitize_input(username)
+            liked_meals = get_liked_Meals_db(username)
+            user_data = get_user_data(username)
+            user_login_info = get_user(username)
+            login_log = get_login_log(username)
+            meal = [meal[2] for meal in liked_meals]
+
+            return jsonify({
+                'loginDetails': user_login_info,
+                'likedMeals': meal,
+                'loginLog': login_log,
+                'userData': user_data,
+            })
+        return jsonify({
+            'error': 'Not a admin'
+        })
+    else:
+        # User is not logged in, redirect to the login page
+        return redirect(url_for('login'))
+
 
 # Logout
 @app.route('/logout')
@@ -183,25 +201,6 @@ def remove_liked_meals():
     else:
         return jsonify({'error': 'Invalid request data'})
     
-
-def fetch_geo(user_ip):
-    ip_api_url = f"http://ip-api.com/json/{user_ip}"
-    response = requests.get(ip_api_url)
-    ip_data = response.json()
-
-    # Extract relevant geolocation data
-    query_status = ip_data.get('status')
-    user_country = ip_data.get('country')
-    user_region = ip_data.get('regionName')
-    user_city = ip_data.get('city')
-    user_zip = ip_data.get('zip')
-    user_latitude = ip_data.get('lat')
-    user_longitude = ip_data.get('lon')
-    user_isp = ip_data.get('isp')
-    user_timezone = ip_data.get('timezone')
-    return query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone
-
-
 
 # admin
 @app.route('/admin/dashboard')

@@ -1,32 +1,45 @@
-<!-- # food-website-main -->
+# Food Website
 
+This is a simple Flask website that displays food recipes. It fetches data from [TheMealDB API](https://themealdb.com), and you can see a live static design of the website [here](https://dbfood.netlify.app).
 
-<b> Installation - </b>
+## Installation
+
+To run this project locally, follow these steps:
+
+1. Install the required dependencies using pip:
 
 pip install -r requirements.txt
 
-Before starting the website please delete the old testdb.db file.
-<b>python main.py</b>
-this should create a fresh new db also executing the main script but if not created please execute db.py this will create the database with necessary tables
+2. Before starting the website, delete the old `testdb.db` file. You can do this manually or by executing the following command:
 
-also please change the the following in the main.py
+python main.py
 
-app.run(host='192.168.10.4', port=80, debug=True)
-to 
+This command should create a fresh new database. If the database is not created, execute `db.py` to create the database with the necessary tables.
+
+3. Modify the following lines in `main.py` to control the host and port where your website will be running:
+
+Change this line:
+
+```python
+app.run(host='192.168.10.2', port=80, debug=True)
+
+to either:
+
 app.run()
-or 
-change the host to the ipv4 of the device 
-you can do it by running command prompt and ipconfig
+
+or change the host to the IPv4 address of your device. You can find your device's IPv4 address by running the command ipconfig in the command prompt:
 
 IPv4 Address. . . . . . . . . . . : 192.168.10.5
 
-app.run()
- 
-<b>About</b>
+Update the app.run() line accordingly.
 
-Simple flask website to display food recipies. 
+Now, you are ready to run the website locally.
 
+Usage
+You can access the website by opening your web browser and navigating to the address where the website is hosted.
 
-<b>API - https://themealdb.com/</b>
+Contributing
+If you'd like to contribute to this project, please open an issue or submit a pull request. We welcome your contributions and ideas!
 
-<b>LIVE STATIC design (Only HTML, CSS, JS) - https://dbfood.netlify.app/</b>
+License
+This project is open-source and available under the MIT License.

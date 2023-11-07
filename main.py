@@ -205,9 +205,13 @@ def remove_liked_meals():
 # admin
 @app.route('/admin/dashboard')
 def admin_dashboard():
-    users = get_all_users()  # Create a function to retrieve all users from the database
-    cookies = request.cookies
-    return render_template('admin/admin_dashboard.html', users=users, cookies=cookies)
+    username = session.get('username')
+    if username == 'admin':
+        users = get_all_users()  # Create a function to retrieve all users from the database
+        cookies = request.cookies
+        return render_template('admin/admin_dashboard.html', users=users, cookies=cookies)
+    else:
+        return 'Only admin'
 
 
 if __name__ == '__main__':

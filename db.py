@@ -189,7 +189,6 @@ def get_user_data(username):
         return None
 
 
-
 def get_login_log(username):
     conn, cursor = connect()
     cursor.execute('SELECT * FROM LoginLog WHERE username = ?', (username, ))
@@ -201,7 +200,6 @@ def get_login_log(username):
     conn.commit()
     conn.close()
     return login_data
-
 
 
 def get_all_users():

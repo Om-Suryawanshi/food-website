@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, redirect
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
 from db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
 from check_input import sanitize_input, is_valid_username
@@ -215,5 +215,4 @@ def admin_dashboard():
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.137.213', port=80, debug=True)
-    # app.run(debug=True)
+    app.run(host='192.168.7.80', port=80)

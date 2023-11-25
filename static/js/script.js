@@ -18,7 +18,6 @@ function get_categories(url) {
     categories.innerHTML = ``;
 
     fetch(url).then(res => res.json()).then(data => {
-        // console.log(data);
 
         for (let i = 0; i < data.categories.length; i++) {
             const category = document.createElement('div');

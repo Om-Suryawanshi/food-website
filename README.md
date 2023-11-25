@@ -7,9 +7,9 @@ This is a simple Flask website that displays food recipes. It fetches data from 
 To run this project locally, follow these steps:
 
 1. Install the required dependencies using pip:
-
+```
 pip install -r requirements.txt
-
+```
 2. Before starting the website, delete the old `testdb.db` file.
 
 3. New Database will automatically be created after executing the following command:
@@ -17,7 +17,8 @@ pip install -r requirements.txt
 python main.py
 ```
 
-This command should create a fresh new database. If the database is not created, execute `db.py` to create the database with the necessary tables.
+This command should create a fresh new database. 
+If the database is not created, execute `database.py` to create the database with the necessary tables.
 
 Usage
 You can access the website by opening your web browser and navigating to the address where the website is hosted or on 127.0.0.1 .

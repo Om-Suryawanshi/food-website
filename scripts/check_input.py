@@ -1,5 +1,5 @@
 import re
-from db import get_user
+from scripts.db import get_user
 
 def sanitize_input(input_string):
     # Remove leading and trailing spaces

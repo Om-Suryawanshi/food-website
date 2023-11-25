@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from scripts.database import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
+from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
 from scripts.check_input import sanitize_input, is_valid_username
 from scripts.geo import fetch_geo
 
@@ -149,25 +149,28 @@ def logout():
 # API
 @app.route('/add_meal', methods=['POST'])
 def add_meal():
-    meal_data = request.json  # Extract JSON data from the request body
+    if 'username' in session:
+        username = session['username']
 
-    if 'idMeal' in meal_data:
-        username = session.get('username')
+        meal_data = request.json  # Extract JSON data from the request body
 
-        idMeal = meal_data['idMeal']
+        if 'idMeal' in meal_data:
+            idMeal = meal_data['idMeal']
 
-        # Check if the meal is already liked by the user
-        liked_meals = get_liked_Meals_db(username)
-        meal = [meal[2] for meal in liked_meals]
+            # Check if the meal is already liked by the user
+            liked_meals = get_liked_Meals_db(username)
+            meal = [meal[2] for meal in liked_meals]
 
-        if idMeal in meal:
-            return jsonify({'message': 'Meal already liked'})
+            if idMeal in meal:
+                return jsonify({'message': 'Meal already liked'})
+            else:
+                # Insert the liked meal into the database
+                insert_liked_Meals(username, idMeal)
+                return jsonify({'message': 'Meal added successfully'})
         else:
-            # Insert the liked meal into the database
-            insert_liked_Meals(username, idMeal)
-            return jsonify({'message': 'Meal added successfully'})
+            return jsonify({'error': 'Invalid request data'})
     else:
-        return jsonify({'error': 'Invalid request data'})
+        return jsonify({'error': 'User not logged in'})
 
 
 @app.route('/get_liked_meals', methods=['GET'])

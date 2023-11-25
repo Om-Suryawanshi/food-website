@@ -21,3 +21,7 @@
 #     else:
 #         # User is not logged in, redirect to the login page
 #         return redirect(url_for('login'))
+
+
+/search_by_ingrediants
+seach using ingredients like there will be images of ingrediants the user will select the ingredients which they have and displays the relative recipies 

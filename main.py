@@ -1,11 +1,12 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
-from check_input import sanitize_input, is_valid_username
-from geo import fetch_geo
+from scripts.database import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
+from scripts.check_input import sanitize_input, is_valid_username
+from scripts.geo import fetch_geo
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+
 # Replace with a strong, randomly generated secret key
 app.secret_key = 'your_secret_key_here'
 app.static_folder = 'static'
@@ -152,6 +153,7 @@ def add_meal():
 
     if 'idMeal' in meal_data:
         username = session.get('username')
+
         idMeal = meal_data['idMeal']
 
         # Check if the meal is already liked by the user
@@ -215,4 +217,4 @@ def admin_dashboard():
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.7.80', port=80)
+    app.run(host='0.0.0.0', port=80)

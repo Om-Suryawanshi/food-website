@@ -10,9 +10,12 @@ To run this project locally, follow these steps:
 
 pip install -r requirements.txt
 
-2. Before starting the website, delete the old `testdb.db` file. You can do this manually or by executing the following command:
+2. Before starting the website, delete the old `testdb.db` file.
 
+3. New Database will automatically be created after executing the following command:
+```
 python main.py
+```
 
 This command should create a fresh new database. If the database is not created, execute `db.py` to create the database with the necessary tables.
 

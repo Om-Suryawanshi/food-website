@@ -69,8 +69,6 @@ function open_category(url, category) {
                 // If grid is not present then grid is added
                 categories.classList.add('grid');
             }
-            // }else {
-            // }
         } else {
             categories.innerHTML = `<h1 style="padding-top: 50px;text-align: center;text-wrap: nowrap;max-width: fit-content;">No Result Found</h1>`;
             categories.classList.remove('grid');

@@ -43,33 +43,37 @@ function get_categories(url) {
     })
 }
 
-
 function open_category(url, category) {
     fetch(url + category).then(res => res.json()).then(data => {
-        // console.log(data);
         categories.innerHTML = ``;
         food.innerHTML = ``;
-        if (data.meals != 'null') {
+
+        if (data.meals !== null) {
             for (let i = 0; i < data.meals.length; i++) {
-                const category = document.createElement('div');
-                category.classList.add('category');
-                category.innerHTML = `
+                const categoryElement = document.createElement('div');
+                categoryElement.classList.add('category');
+                categoryElement.innerHTML = `
                     <div id="${data.meals[i].idMeal}">
                         <h1>${data.meals[i].strMeal}</h1>
                         <img src="${data.meals[i].strMealThumb}">
                     </div>
-                    `
-                categories.appendChild(category);
+                `;
+                categories.appendChild(categoryElement);
+
                 let id = data.meals[i].idMeal;
                 document.getElementById(id).addEventListener('click', () => {
-                    // console.log(id);
                     open_food(MEAL_SEARCH_URL, id);
-                })
-
+                });
             }
-        }
-        else {
-            category.innerHTML = `<h1>No Result Found</h1>`
+            if (!categories.classList.contains('grid')){
+                // If grid is not present then grid is added
+                categories.classList.add('grid');
+            }
+            // }else {
+            // }
+        } else {
+            categories.innerHTML = `<h1 style="padding-top: 50px;text-align: center;text-wrap: nowrap;max-width: fit-content;">No Result Found</h1>`;
+            categories.classList.remove('grid');
         }
     });
 }

@@ -219,6 +219,9 @@ function addLikedMeal(idMeal) {
         .then(response => response.json())
         .then(result => {
             console.log(result);
+            if (result.error && result.error === "User not logged in") {
+                window.location.href = '/login';
+            }
         })
         .catch(error => {
             console.error('Error:', error);

@@ -212,7 +212,7 @@ def remove_liked_meals():
 def admin_dashboard():
     username = session.get('username')
     if username == 'admin':
-        users = get_all_users()  # Create a function to retrieve all users from the database
+        users = get_all_users() 
         cookies = request.cookies
         return render_template('admin/admin_dashboard.html', users=users, cookies=cookies)
     else:

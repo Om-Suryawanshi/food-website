@@ -1,6 +1,6 @@
 # Food Website
 
-This is a simple Flask website that displays food recipes. It fetches data from [TheMealDB API](https://themealdb.com), and you can see a live static design of the website [here](https://dbfood.netlify.app).
+This is a simple Flask website that displays food recipes. It fetches data from [TheMealDB API](https://themealdb.com), and you can see a live static design of the website [here](https://default3.pythonanywhere.com/).
 
 ## Installation
 

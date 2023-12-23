@@ -47,7 +47,7 @@
         {% for user in users %}
         <tr>
             <td>{{ user[0] }}</td>
-            <td><a style="color: white; text-decoration: none;" href="http://192.168.0.4/user/{{user[1]}}" target="_blank">{{ user[1] }}</a></td>
+            <td><a style="color: white; text-decoration: none;" href="/{{user[1]}}">{{ user[1] }}</a></td>
             <td>{{ user[2] }}</td>
             <td>{{ user[3] }}</td>
         </tr>

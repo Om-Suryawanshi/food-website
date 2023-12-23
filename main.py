@@ -49,7 +49,8 @@ def register():
                 # Hash Password
                 hashed_password = bcrypt.generate_password_hash(
                     password).decode('utf-8')
-                user_ip = request.remote_addr
+                # user_ip = request.remote_addr
+                user_ip = request.access_route[-1]
                 # Login Log
                 insert_login_log(username, user_ip)
                 # Enable After Live Upload
@@ -110,11 +111,9 @@ def reset_password():
         # Verify the token (e.g., check it against a database)
 
 
-# user/admin
-@app.route('/user/<string:username>', methods=['GET'])
+@app.route('/<string:username>', methods=['GET'])
 def user(username):
     if 'username' in session:
-        # User is logged in, display their account page
         logged_in_username = session['username']
 
         if logged_in_username == 'admin':
@@ -125,19 +124,16 @@ def user(username):
             login_log = get_login_log(username)
             meal = [meal[2] for meal in liked_meals]
 
-            return jsonify({
-                'loginDetails': user_login_info,
-                'likedMeals': meal,
-                'loginLog': login_log,
-                'userData': user_data,
-            })
-        return jsonify({
-            'error': 'Not a admin'
-        })
+            return render_template('admin/user_details.html',
+                       username=username,
+                       loginDetails=user_login_info,
+                       liked_meal_ids=meal,  # Pass the likedMeals data
+                       loginLog=login_log,
+                       userData=user_data)
+            
+        return redirect(url_for('account'))  # HTTP 403 Forbidden for non-admin users
     else:
-        # User is not logged in, redirect to the login page
         return redirect(url_for('login'))
-
 
 # Logout
 @app.route('/logout')
@@ -216,7 +212,7 @@ def admin_dashboard():
         cookies = request.cookies
         return render_template('admin/admin_dashboard.html', users=users, cookies=cookies)
     else:
-        return 'Only admin'
+        return jsonify({'error':'Not an admin'}), 403 
 
 
 if __name__ == '__main__':

@@ -110,12 +110,71 @@ def insert_user(username, password, ip):
 
 def update_password(username, password, ip):
     conn, cursor = connect()
-    # Insert code here
     cursor.execute('''
     REPLACE INTO users (username, password, ip) VALUES (?, ?, ?)
 ''', (username, password, ip))
+    cursor.execute('''
+        DELETE FROM reset_tokens WHERE username = ?
+    ''', (username,))
     conn.commit()
     conn.close()
+
+
+def create_reset_tokens_table():
+    conn, cursor = connect()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS reset_tokens (
+        id INTEGER PRIMARY KEY,
+        username TEXT UNIQUE,
+        reset_token TEXT,
+        reset_token_expiry TIMESTAMP
+    )
+    ''')
+    conn.commit()
+    conn.close()
+    print('create_reset_tokens_table Successful')
+
+
+def insert_reset_token(username, reset_token, reset_token_expiry):
+    conn, cursor = connect()
+
+    try:
+        # Use a context manager (with statement)
+        with conn:
+            # Check if a token already exists for the user
+            existing_token = cursor.execute('''
+                SELECT reset_token 
+                FROM reset_tokens 
+                WHERE username = ?
+            ''', (username,)).fetchone()
+
+            if existing_token:
+                # If a token exists, delete the existing record
+                cursor.execute('''
+                    DELETE FROM reset_tokens 
+                    WHERE username = ?
+                ''', (username,))
+
+            # Insert the new token
+            cursor.execute('''
+                INSERT INTO reset_tokens (username, reset_token, reset_token_expiry) 
+                VALUES (?, ?, ?)
+            ''', (username, reset_token, reset_token_expiry))
+    except Exception as e:
+        # Handle the exception (e.g., log it or raise a custom exception)
+        print(f"Error inserting reset token: {e}")
+    finally:
+        # Commit the transaction and close the connection
+        conn.commit()
+        conn.close()
+
+def get_username_from_token(token):
+    conn, cursor = connect()
+    cursor.execute('''
+        SELECT username FROM reset_tokens WHERE reset_token = ?
+    ''', (token,))
+    username = cursor.fetchone()
+    return username[0]
 
 
 def insert_liked_Meals(username, likedMeals):
@@ -215,7 +274,7 @@ def db():
     create_table_likedMeals()
     create_table_user_data()
     create_login_log_table()
-
+    create_reset_tokens_table()
 
 # Create tables
 db()

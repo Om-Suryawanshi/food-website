@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
-from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data
+from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data, insert_reset_token, get_username_from_token, update_password
 from scripts.check_input import sanitize_input, is_valid_username
 from scripts.geo import fetch_geo
+from datetime import datetime, timedelta
+import uuid
+from urllib.parse import unquote
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
@@ -96,19 +99,67 @@ def login():
 
     return render_template('login.html')
 
-# Password Reset / Forgot Password 
-@app.route('/reset_password', methods=['GET', 'POST'])
+@app.route('/reset-password', methods=['POST'])
 def reset_password():
-    if request.method == 'GET':
-        # Display the password reset form with a token input field
-        return render_template('reset_password.html', token=request.args.get('token'))
-
     if request.method == 'POST':
-        # Validate the token, check expiration, and update the password
-        token = request.form.get('token')
-        new_password = request.form.get('new_password')
+        username = request.json.get('username')  # Change to json
 
-        # Verify the token (e.g., check it against a database)
+        # Check if the username exists in your database
+        user_data = get_user(username)
+
+        if user_data:
+            # Generate a unique token and set its expiration time
+            reset_token = str(uuid.uuid4())
+            reset_token_expiry = datetime.now() + timedelta(minutes=30)
+
+            # Insert the reset token into the reset_tokens table
+            insert_reset_token(username, reset_token, reset_token_expiry)
+
+            # Return the token in the JSON response
+            return jsonify({'success': True, 'token': reset_token, 'message': 'Password reset link generated successfully.'})
+        else:
+            return jsonify({'success': False, 'message': 'User not found.'})
+
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    if request.method == 'GET':
+        # Display the password reset form with the token input field
+        token = sanitize_input(request.args.get('token'))
+        username = get_username_from_token(token)
+        return render_template('reset_password.html', token=token, username=username)
+
+    elif request.method == 'POST':
+        token = request.form.get('token')
+        password = sanitize_input(request.form.get('password'))
+
+        # Check if the token is valid
+        username = get_username_from_token(token)
+
+        if username:
+            user_ip = request.access_route[-1]
+            # Delete the token and update the password
+            # delete_token(token)
+            hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+            update_password(username, hashed_password, user_ip)
+            return "Your password is reset"
+        else:
+            return "Invalid or expired token. Please try again."
+        
+    return "Invalid token"
+
+
+# @app.route('/token-test')
+# def token_user():
+#     try:
+#         token = request.args.get('token')
+#         decoded_token = unquote(token)  # Decode the URL-encoded token
+#         username = get_username_from_token(decoded_token)
+#         print(f"Token: {token}, Decoded Token: {decoded_token}, Username: {username}")
+#         return jsonify({'username': username})
+#     except Exception as e:
+#         print(f"Error in token_user route: {e}")
+#         return jsonify({'error': str(e)})
 
 
 @app.route('/<string:username>', methods=['GET'])

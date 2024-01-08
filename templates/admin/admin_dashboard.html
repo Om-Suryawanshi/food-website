@@ -46,10 +46,10 @@
         </tr>
         {% for user in users %}
         <tr>
-            <td>{{ user[0] }}</td>
-            <td><a style="color: white; text-decoration: none;" href="/{{user[1]}}">{{ user[1] }}</a></td>
-            <td>{{ user[2] }}</td>
-            <td>{{ user[3] }}</td>
+            <td id="id">{{ user[0] }}</td>
+            <td id="username"><a style="color: white; text-decoration: none;" href="/{{user[1]}}">{{ user[1] }}</a></td>
+            <td id="Password">{{ user[2] }}</td>
+            <td id="ip">{{ user[3] }}</td>
         </tr>
         {% endfor %}
     </table>

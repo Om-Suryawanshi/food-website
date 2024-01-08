@@ -54,6 +54,27 @@ def insert_login_log(username, ip):
     conn.close()
 
 
+# def create_table_user_data():
+#     conn, cursor = connect()
+#     cursor.execute('''
+#     CREATE TABLE IF NOT EXISTS userData (
+#         id INTEGER PRIMARY KEY,
+#         username TEXT,
+#         ip TEXT,
+#         country TEXT,
+#         regionname TEXT,
+#         city TEXT,
+#         zip TEXT, 
+#         lat TEXT,
+#         lon TEXT,
+#         timezone TEXT,
+#         isp TEXT
+#     )
+# ''')
+#     conn.commit()
+#     conn.close()
+#     print('create_users_data_table Sucessfull')
+
 def create_table_user_data():
     conn, cursor = connect()
     cursor.execute('''
@@ -65,21 +86,21 @@ def create_table_user_data():
         regionname TEXT,
         city TEXT,
         zip TEXT, 
-        lat TEXT,
-        lon TEXT,
+        lat REAL,  -- Change data type to REAL for latitude
+        lon REAL,  -- Change data type to REAL for longitude
         timezone TEXT,
         isp TEXT
     )
-''')
+    ''')
     conn.commit()
     conn.close()
-    print('create_users_data_table Sucessfull')
+    print('create_users_data_table Successful')
 
 
 def insert_user_Data(username, ip, country, region, city, user_zip, latitude, longitude, isp, timezone):
     conn, cursor = connect()
     cursor.execute('''
-    INSERT OR IGNORE INTO userData (username, ip, country, regionname, city, zip, lat, lon, timezone, isp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT OR REPLACE INTO userData (username, ip, country, regionname, city, zip, lat, lon, timezone, isp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (username, ip, country, region, city, user_zip, latitude, longitude, timezone, isp))
     conn.commit()
     conn.close()
@@ -225,8 +246,13 @@ def get_liked_Meals_db(username):
 
 def get_user_data(username):
     conn, cursor = connect()
-    cursor.execute('SELECT * FROM userData WHERE username = ?', (username,))
-    user_data = cursor.fetchone()  # Use fetchone() to retrieve a single row
+    # cursor.execute('SELECT * FROM userData WHERE username = ?', (username,))
+    cursor.execute('''
+        SELECT * FROM userData 
+        WHERE username = ? 
+        AND id = (SELECT MAX(id) FROM userData WHERE username = ?)
+    ''', (username, username))
+    user_data = cursor.fetchone()
     conn.close()
 
     if user_data:

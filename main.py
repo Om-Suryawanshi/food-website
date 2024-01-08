@@ -86,9 +86,15 @@ def login():
             # user_data[2] == enc pass
             if user_data and bcrypt.check_password_hash(user_data['password'], password):
                 # Successful login
-                user_ip = request.remote_addr
+                # user_ip = request.remote_addr
+                user_ip = request.access_route[-1]
                 # Login Log
+                query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
+                insert_user_Data(username, user_ip, user_country, user_region, user_city,
+                                 user_zip, user_latitude, user_longitude, user_timezone, user_isp)
+                
                 insert_login_log(username, user_ip)
+                
                 # Cookie
                 session['username'] = username
                 return redirect(url_for('index'))
@@ -105,20 +111,22 @@ def reset_password():
         username = request.json.get('username')  # Change to json
 
         # Check if the username exists in your database
-        user_data = get_user(username)
+        username = session.get('username')
+        if username == 'admin':
+            user_data = get_user(username)
 
-        if user_data:
-            # Generate a unique token and set its expiration time
-            reset_token = str(uuid.uuid4())
-            reset_token_expiry = datetime.now() + timedelta(minutes=30)
+            if user_data:
+                # Generate a unique token and set its expiration time
+                reset_token = str(uuid.uuid4())
+                reset_token_expiry = datetime.now() + timedelta(minutes=30)
 
-            # Insert the reset token into the reset_tokens table
-            insert_reset_token(username, reset_token, reset_token_expiry)
+                # Insert the reset token into the reset_tokens table
+                insert_reset_token(username, reset_token, reset_token_expiry)
 
-            # Return the token in the JSON response
-            return jsonify({'success': True, 'token': reset_token, 'message': 'Password reset link generated successfully.'})
-        else:
-            return jsonify({'success': False, 'message': 'User not found.'})
+                # Return the token in the JSON response
+                return jsonify({'success': True, 'token': reset_token, 'message': 'Password reset link generated successfully.'})
+            else:
+                return jsonify({'success': False, 'message': 'User not found.'})
 
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
@@ -142,6 +150,12 @@ def forgot_password():
             # delete_token(token)
             hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
             update_password(username, hashed_password, user_ip)
+            user_ip = request.access_route[-1]
+                # Login Log
+            insert_login_log(username, user_ip)
+            query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
+            insert_user_Data(username, user_ip, user_country, user_region, user_city,
+                                 user_zip, user_latitude, user_longitude, user_timezone, user_isp)
             return "Your password is reset"
         else:
             return "Invalid or expired token. Please try again."

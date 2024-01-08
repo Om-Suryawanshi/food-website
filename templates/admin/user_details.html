@@ -78,9 +78,9 @@
 
   <h2>Password Reset</h2>
   <div>
-    <button onclick="resetPassword('{{ username }}')">Reset Password</button>
-    <input type="text" id="resetUrlField" value="" readonly>
-    <button onclick="copyResetUrl()">Copy URL</button>
+    <button onclick="resetPassword('{{ username }}')" style="background: gray; border: none; outline: none; padding: 10px; cursor: pointer; color: white;">Reset Password</button>
+    <input type="text" id="resetUrlField" value="" readonly style="background: darkgray; border: none; outline: none; padding: 10px; color: white;">
+    <button onclick="copyResetUrl()" style="background: gray; border: none; outline: none; padding: 10px; cursor: pointer; color: white;">Copy URL</button>
   </div>
 
   <section>

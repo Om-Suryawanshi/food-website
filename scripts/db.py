@@ -223,7 +223,7 @@ def get_user(username):
     cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
     user_data = cursor.fetchone()
     conn.close()
-
+    
     if user_data:
         user_dict = {
             'id': user_data[0],

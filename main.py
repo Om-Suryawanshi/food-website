@@ -111,8 +111,8 @@ def reset_password():
         username = request.json.get('username')  # Change to json
 
         # Check if the username exists in your database
-        username = session.get('username')
-        if username == 'admin':
+        admin_check = session.get('username')
+        if admin_check == 'admin':
             user_data = get_user(username)
 
             if user_data:

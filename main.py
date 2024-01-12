@@ -5,15 +5,52 @@ from scripts.check_input import sanitize_input, is_valid_username
 from scripts.geo import fetch_geo
 from datetime import datetime, timedelta
 import uuid
-from urllib.parse import unquote
+import secrets
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
 
+csp_header = {
+    'default-src': "'self'",
+    'style-src': "'self' 'unsafe-inline' https://fonts.googleapis.com",
+    'font-src': "'self' https://fonts.gstatic.com",
+    'img-src': "'self' https://www.themealdb.com data:",
+    'connect-src': "'self' https://www.themealdb.com",
+    'frame-src': "'self' https://www.youtube.com/",
+}
+
+# Set the Content Security Policy header for all responses with a dynamic nonce using secrets
+@app.after_request
+def set_csp_header(response):
+    csp_value = '; '.join([f"{key} {value}" for key, value in csp_header.items()])
+    response.headers['Content-Security-Policy'] = csp_value
+    return response
+
+# Adding X-Frame-Options header for all responses
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    return response
+
+# Set HSTS header for all responses
+@app.after_request
+def add_hsts_header(response):
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+    return response
+
+# Adding X-Content-Type-Options header for all responses
+@app.after_request
+def add_content_type_header(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    return response
+
 # Replace with a strong, randomly generated secret key
 app.secret_key = 'your_secret_key_here'
 app.static_folder = 'static'
-
+# app.config['SESSION_TYPE'] = 'filesystem'  # Use filesystem-based session storage
+# app.config['SESSION_PERMANENT'] = False  # Ensure the session is not permanent
+# app.config['SESSION_USE_SIGNER'] = True  # Enable session signing
+# app.config['SESSION_COOKIE_SECURE'] = False  # Set to False for testing over non-HTTPS
 
 @app.route('/')
 def index():
@@ -72,38 +109,90 @@ def register():
     return render_template('register.html')
 
 
+# @app.route('/login', methods=['GET', 'POST'])
+# def login():
+#     session.clear()  # Clear the session data
+#     csrf_token = secrets.token_hex(16)
+#     if request.method == 'POST':
+#         # Validate CSRF token
+#         username = sanitize_input(request.form.get('username'))
+#         password = sanitize_input(request.form.get('password'))
+
+#         if username and password:
+#             # # Validate username
+#             user_data = get_user(username)
+
+#             # user_data[2] == enc pass
+#             if user_data and bcrypt.check_password_hash(user_data['password'], password):
+#                 # Successful login
+#                 # user_ip = request.remote_addr
+#                 user_ip = request.access_route[-1]
+#                 # Login Log
+#                 query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
+#                 insert_user_Data(username, user_ip, user_country, user_region, user_city,
+#                                  user_zip, user_latitude, user_longitude, user_timezone, user_isp)
+                
+#                 insert_login_log(username, user_ip)
+                
+#                 # Cookie
+#                 session['username'] = username
+#                 return redirect(url_for('index'))
+#             else:
+#                 return "Login failed. Please check your credentials."
+#         else:
+#             return "Invalid username or password. Please check your input."
+        
+#     return render_template('login.html',csrf_token=csrf_token)
+
+# csrf_token = secrets.token_hex(16)
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    session.clear()  # Clear the session data
+    csrf_token = session.get('csrf_token') or secrets.token_hex(16)
+    session['csrf_token'] = csrf_token
+
+    if request.method == 'GET':
+        # Generate CSRF token for the login form
+        # session['csrf_token'] = csrf_token
+        print(f"Generated CSRF Token: {csrf_token}")
+
+        # Serve the CSRF token without setting it in the cookie
+        return render_template('login.html', csrf_token=session['csrf_token'])
+
     if request.method == 'POST':
+        # Validate CSRF token
+        submitted_token = request.form.get('csrf_token')
+        # session_token = session.get('csrf_token') , Session Token: {session_token}
+        print(f"Submitted CSRF Token: {submitted_token}")
+        if csrf_token != submitted_token:
+            return "CSRF token validation failed. Please try again."
+
         username = sanitize_input(request.form.get('username'))
         password = sanitize_input(request.form.get('password'))
 
         if username and password:
-            # # Validate username
+            # Validate username and password
             user_data = get_user(username)
 
-            # user_data[2] == enc pass
             if user_data and bcrypt.check_password_hash(user_data['password'], password):
                 # Successful login
-                # user_ip = request.remote_addr
                 user_ip = request.access_route[-1]
+                
                 # Login Log
                 query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
                 insert_user_Data(username, user_ip, user_country, user_region, user_city,
                                  user_zip, user_latitude, user_longitude, user_timezone, user_isp)
                 
                 insert_login_log(username, user_ip)
-                
-                # Cookie
+
+                # Set the username in the session after successful login
                 session['username'] = username
+
                 return redirect(url_for('index'))
             else:
                 return "Login failed. Please check your credentials."
         else:
             return "Invalid username or password. Please check your input."
-
-    return render_template('login.html')
 
 @app.route('/reset-password', methods=['POST'])
 def reset_password():
@@ -178,10 +267,12 @@ def forgot_password():
 
 @app.route('/<string:username>', methods=['GET'])
 def user(username):
+    nonce = secrets.token_hex(8)
     if 'username' in session:
         logged_in_username = session['username']
 
         if logged_in_username == 'admin':
+            csp_header['script-src'] = f"'self' 'nonce-{nonce}'"
             username = sanitize_input(username)
             liked_meals = get_liked_Meals_db(username)
             user_data = get_user_data(username)
@@ -194,7 +285,8 @@ def user(username):
                        loginDetails=user_login_info,
                        liked_meal_ids=meal,  # Pass the likedMeals data
                        loginLog=login_log,
-                       userData=user_data)
+                       userData=user_data,
+                       nonce=nonce)
             
         return redirect(url_for('account'))  # HTTP 403 Forbidden for non-admin users
     else:

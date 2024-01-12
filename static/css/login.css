@@ -1,4 +1,3 @@
-
 /* Login */
 .login {
     color: #000;
@@ -22,6 +21,7 @@
         -16px -16px 32px #565656;
     border-radius: 8px;
 }
+
 
 .inputBox {
     position: relative;
@@ -96,6 +96,20 @@
 
 .centered {
     display: grid;
-    place-items: center; /* Center both horizontally and vertically */
-    height: 100vh; /* Optional: To center in the viewport's height */
+    place-items: center;
+    /* Center both horizontally and vertically */
+    height: 100vh;
+    /* Optional: To center in the viewport's height */
+}
+
+@media only screen and (max-width: 600px) {
+    .card {
+        width: 80%;
+        /* Adjust the width for smaller screens */
+    }
+
+    .enter {
+        width: 80%;
+        /* Adjust the width for the button */
+    }
 }

@@ -8,6 +8,9 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/template.css') }}" />
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/header.css') }}" />
   <title>{{ username }}, Account</title>
+  {% block csp_nonce %}
+  <meta http-equiv="Content-Security-Policy" content="script-src 'nonce-{{ nonce }}';">
+  {% endblock %}
 </head>
 
 <body>
@@ -75,12 +78,17 @@
     <p><b>LAT , LON : </b> {{ userData.lat }}, {{ userData.lon }}<br></p>
   </div>
 
-
+  <!-- onclick="resetPassword('{{ username }}')"  onclick="copyResetUrl()"-->
   <h2>Password Reset</h2>
   <div>
-    <button onclick="resetPassword('{{ username }}')" style="background: gray; border: none; outline: none; padding: 10px; cursor: pointer; color: white;">Reset Password</button>
-    <input type="text" id="resetUrlField" value="" readonly style="background: darkgray; border: none; outline: none; padding: 10px; color: white;">
-    <button onclick="copyResetUrl()" style="background: gray; border: none; outline: none; padding: 10px; cursor: pointer; color: white;">Copy URL</button>
+    <button id="resetButton" nonce="{{ nonce }}"
+      style="background: gray; border: none; outline: none; padding: 10px; cursor: pointer; color: white;">Reset
+      Password</button>
+    <input type="text" id="resetUrlField" value="" readonly
+      style="background: darkgray; border: none; outline: none; padding: 10px; color: white;">
+    <button id="copyUrlButton" nonce="{{ nonce }}"
+      style="background: gray; border: none; outline: none; padding: 10px; cursor: pointer; color: white;">Copy
+      URL</button>
   </div>
 
   <section>
@@ -97,7 +105,21 @@
     {% endfor %}
   </ul>
 
-  <script>
+  <script nonce="{{ nonce }}">
+    document.addEventListener('DOMContentLoaded', function () {
+      const resetButton = document.getElementById('resetButton');
+      const copyUrlButton = document.getElementById('copyUrlButton');
+
+      resetButton.addEventListener('click', function () {
+        resetPassword('{{ username }}');
+      });
+
+      copyUrlButton.addEventListener('click', function () {
+        copyResetUrl();
+      });
+    });
+
+    
     const categories = document.getElementById("categories");
 
     // Read the likedMeals data from the hidden input field

@@ -109,43 +109,6 @@ def register():
     return render_template('register.html')
 
 
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     session.clear()  # Clear the session data
-#     csrf_token = secrets.token_hex(16)
-#     if request.method == 'POST':
-#         # Validate CSRF token
-#         username = sanitize_input(request.form.get('username'))
-#         password = sanitize_input(request.form.get('password'))
-
-#         if username and password:
-#             # # Validate username
-#             user_data = get_user(username)
-
-#             # user_data[2] == enc pass
-#             if user_data and bcrypt.check_password_hash(user_data['password'], password):
-#                 # Successful login
-#                 # user_ip = request.remote_addr
-#                 user_ip = request.access_route[-1]
-#                 # Login Log
-#                 query_status, user_country, user_region, user_city, user_zip, user_latitude, user_longitude, user_isp, user_timezone = fetch_geo(user_ip)
-#                 insert_user_Data(username, user_ip, user_country, user_region, user_city,
-#                                  user_zip, user_latitude, user_longitude, user_timezone, user_isp)
-                
-#                 insert_login_log(username, user_ip)
-                
-#                 # Cookie
-#                 session['username'] = username
-#                 return redirect(url_for('index'))
-#             else:
-#                 return "Login failed. Please check your credentials."
-#         else:
-#             return "Invalid username or password. Please check your input."
-        
-#     return render_template('login.html',csrf_token=csrf_token)
-
-# csrf_token = secrets.token_hex(16)
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     csrf_token = session.get('csrf_token') or secrets.token_hex(16)

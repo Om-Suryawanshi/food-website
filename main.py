@@ -115,6 +115,7 @@ def register():
                 insert_user(username, hashed_password, user_ip)
                 # Cookie
                 session['username'] = username  # Set new login data
+                session.pop('csrf_token') # POP the csrf token after sucessfull login
                 return redirect(url_for('index'))
 
             else:
@@ -159,6 +160,7 @@ def login():
 
                 # Set the username in the session after successful login
                 session['username'] = username
+                session.pop('csrf_token') # POP the csrf token after sucessfull login
 
                 return redirect(url_for('index'))
             else:

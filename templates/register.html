@@ -10,7 +10,8 @@
 
 <body class="centered">
     <section class="form">
-        <form method="POST">
+        <form method="POST" action="/register">
+            <input type="hidden" name="csrf_token" id="csrf_token" value="{{ csrf_token }}">
             <div class="container">
                 <div class="card">
                     <a class="login">Register</a>

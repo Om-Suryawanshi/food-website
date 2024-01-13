@@ -72,7 +72,21 @@ def account():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    csrf_token = session.get('csrf_token') or secrets.token_hex(16)
+    session['csrf_token'] = csrf_token
+
+    if request.method == 'GET':
+        print(f"Generated CSRF Token: {csrf_token}")
+        # Serve the CSRF token without setting it in the cookie
+        return render_template('register.html', csrf_token=session['csrf_token'])
+
     if request.method == 'POST':
+        submitted_token = request.form.get('csrf_token')
+        session_token = session.get('csrf_token')
+        print(f"Submitted CSRF Token: {submitted_token} , Session Token: {session_token}")
+        if csrf_token != submitted_token:
+            return "CSRF token validation failed. Please try again."
+        
         username = sanitize_input(request.form.get('username'))
         password = sanitize_input(request.form.get('password'))
 
@@ -106,8 +120,6 @@ def register():
             else:
                 return "Invalid username or password. Please check your input."
 
-    return render_template('register.html')
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -115,18 +127,15 @@ def login():
     session['csrf_token'] = csrf_token
 
     if request.method == 'GET':
-        # Generate CSRF token for the login form
-        # session['csrf_token'] = csrf_token
         print(f"Generated CSRF Token: {csrf_token}")
-
         # Serve the CSRF token without setting it in the cookie
         return render_template('login.html', csrf_token=session['csrf_token'])
 
     if request.method == 'POST':
         # Validate CSRF token
         submitted_token = request.form.get('csrf_token')
-        # session_token = session.get('csrf_token') , Session Token: {session_token}
-        print(f"Submitted CSRF Token: {submitted_token}")
+        session_token = session.get('csrf_token')
+        print(f"Submitted CSRF Token: {submitted_token} , Session Token: {session_token}")
         if csrf_token != submitted_token:
             return "CSRF token validation failed. Please try again."
 

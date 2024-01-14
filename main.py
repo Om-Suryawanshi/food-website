@@ -185,6 +185,8 @@ def get_image(filename):
     )
 
 
+
+##########################################################################################################
 # Account
 @app.route('/account')
 def account():
@@ -402,7 +404,7 @@ def logout():
     session.clear()  # Clear the session data
     return redirect(url_for('login'))
 
-
+#########################################################################################################
 # Database API
 # Add Liked meals to database
 @app.route('/add_meal', methods=['POST'])

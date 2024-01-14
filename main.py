@@ -1,14 +1,20 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, send_file, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
+from flask_caching import Cache
 from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data, insert_reset_token, get_username_from_token, update_password
 from scripts.check_input import sanitize_input, is_valid_username
 from scripts.geo import fetch_geo
 from datetime import datetime, timedelta
 import uuid
 import secrets
+import requests
+from io import BytesIO
+
 
 app = Flask(__name__)
 bcrypt = Bcrypt(app)
+# Configure Flask-Caching
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 csp_header = {
     'default-src': "'self'",
@@ -56,7 +62,130 @@ app.static_folder = 'static'
 def index():
     return render_template('index.html')
 
+# API
+# /api/categories
+@app.route('/api/categories')
+def get_categories():
+    # Fetch data from external API
+    response = requests.get('https://www.themealdb.com/api/json/v1/1/categories.php')
+    data = response.json()
 
+    # Cache data (you can use an in-memory cache or a database)
+    # Example: cache.set('meals_data', data)
+
+    return jsonify(data)
+
+# /api/filter/c?category=beef
+@app.route('/api/filter/c')
+def get_filter_categories():
+    category = request.args.get('category')
+
+    if not category:
+        return jsonify({"error": "Category not specified"}), 400
+
+    # Fetch data from external API based on the specified category
+    api_url = f'https://www.themealdb.com/api/json/v1/1/filter.php?c={category}'
+    response = requests.get(api_url)
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch data from external API"}), 500
+
+    data = response.json()
+
+    # Cache data (you can use an in-memory cache or a database)
+    # Example: cache.set(f'meals_data_{category}', data)
+
+    return jsonify(data)
+
+# /api/meal?meal-id=53016
+@app.route('/api/meal')
+def get_meal_id_lookup():
+    meal_id = request.args.get('meal-id')
+    # Fetch data from external API based on the specified meal ID
+    api_url = f'https://www.themealdb.com/api/json/v1/1/lookup.php?i={meal_id}'
+    response = requests.get(api_url)
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch data from external API"}), 500
+
+    data = response.json()
+    return jsonify(data)
+
+
+# api/search?s=biriyani
+@app.route('/api/search')
+def search_meals():
+    search_term = request.args.get('s')
+
+    if not search_term:
+        return jsonify({"error": "Search term not specified"}), 400
+
+    # Fetch data from external API based on the specified search term
+    api_url = f'https://www.themealdb.com/api/json/v1/1/search.php?s={search_term}'
+    response = requests.get(api_url)
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch data from external API"}), 500
+
+    data = response.json()
+    return jsonify(data)
+
+# /api/filter/i?ingredient=Chicken
+@app.route('/api/filter/i')
+def filter_meals_by_ingredient():
+    ingredient = request.args.get('ingredient')
+
+    if not ingredient:
+        return jsonify({"error": "Ingredient not specified"}), 400
+
+    # Fetch data from external API based on the specified ingredient
+    api_url = f'https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredient}'
+    response = requests.get(api_url)
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch data from external API"}), 500
+
+    data = response.json()
+    return jsonify(data)
+
+# /api/filter/a?area=Japanese
+@app.route('/api/filter/a')
+def filter_meals_by_area():
+    area = request.args.get('area')
+
+    if not area:
+        return jsonify({"error": "Area not specified"}), 400
+
+    # Fetch data from external API based on the specified ingredient
+    api_url = f'https://www.themealdb.com/api/json/v1/1/filter.php?a={area}'
+    response = requests.get(api_url)
+
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch data from external API"}), 500
+
+    data = response.json()
+    return jsonify(data)
+
+
+# @cache.cached(timeout=3600)  # Cache images for 1 hour (adjust as needed)
+@app.route('/api/images/<filename>')
+def get_image(filename):
+    # Construct the URL for the external image
+    image_url = f'https://www.themealdb.com/images/ingredients/{filename}'
+
+    # Fetch the image from the external URL
+    image_data = requests.get(image_url).content
+
+    # Return the image data
+    return send_file(
+        BytesIO(image_data),
+        mimetype='image/png',  # Adjust the mimetype based on the actual image type
+        as_attachment=False,
+        download_name=f'{filename}'
+    )
+
+
+# Account
 @app.route('/account')
 def account():
     if 'username' in session:
@@ -69,7 +198,7 @@ def account():
         return redirect(url_for('login'))
 
 
-
+# Register
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     csrf_token = session.get('csrf_token') or secrets.token_hex(16)
@@ -121,7 +250,7 @@ def register():
             else:
                 return "Invalid username or password. Please check your input."
 
-
+# Login
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     csrf_token = session.get('csrf_token') or secrets.token_hex(16)
@@ -168,6 +297,7 @@ def login():
         else:
             return "Invalid username or password. Please check your input."
 
+# Password Reset url generate by admin
 @app.route('/reset-password', methods=['POST'])
 def reset_password():
     if request.method == 'POST':
@@ -191,7 +321,7 @@ def reset_password():
             else:
                 return jsonify({'success': False, 'message': 'User not found.'})
 
-
+# Reset password through unique url
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
     if request.method == 'GET':
@@ -225,7 +355,7 @@ def forgot_password():
         
     return "Invalid token"
 
-
+# Reset token test api
 # @app.route('/token-test')
 # def token_user():
 #     try:
@@ -238,7 +368,7 @@ def forgot_password():
 #         print(f"Error in token_user route: {e}")
 #         return jsonify({'error': str(e)})
 
-
+# Admin User Profile check endpoint
 @app.route('/<string:username>', methods=['GET'])
 def user(username):
     nonce = secrets.token_hex(8)
@@ -273,7 +403,8 @@ def logout():
     return redirect(url_for('login'))
 
 
-# API
+# Database API
+# Add Liked meals to database
 @app.route('/add_meal', methods=['POST'])
 def add_meal():
     if 'username' in session:
@@ -299,7 +430,7 @@ def add_meal():
     else:
         return jsonify({'error': 'User not logged in'})
 
-
+# Fetch Liked meals from database
 @app.route('/get_liked_meals', methods=['GET'])
 def get_liked_meals():
     # Retrieve liked meals from the data store
@@ -312,7 +443,7 @@ def get_liked_meals():
     return jsonify({'likedMeals': meal,
                     'username': username})
 
-
+# Remove liked meals from database
 @app.route('/remove_liked_meals', methods=['POST'])
 def remove_liked_meals():
     meal_data = request.json
@@ -334,7 +465,7 @@ def remove_liked_meals():
         return jsonify({'error': 'Invalid request data'})
     
 
-# admin
+# admin user panel
 @app.route('/admin/dashboard')
 def admin_dashboard():
     username = session.get('username')

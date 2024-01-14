@@ -23,5 +23,19 @@
 #         return redirect(url_for('login'))
 
 
+OLD API ENDPOINTS
+
+const CATEGORIES_URL = "https://www.themealdb.com/api/json/v1/1/categories.php";
+const CATEGORY_CLICK_URL = "https://www.themealdb.com/api/json/v1/1/filter.php?c=";
+const MEAL_SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
+const INGREDIANT_IMAGE_URL = "https://www.themealdb.com/images/ingredients/";
+const SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+const INGREDIANT_SEARCH_URL = 'https://www.themealdb.com/api/json/v1/1/filter.php?i=';
+const AREA_FILER_URL = 'https://www.themealdb.com/api/json/v1/1/filter.php?a=';
+
+
+
+
+
 /search_by_ingrediants
 seach using ingredients like there will be images of ingrediants the user will select the ingredients which they have and displays the relative recipies 

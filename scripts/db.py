@@ -54,27 +54,6 @@ def insert_login_log(username, ip):
     conn.close()
 
 
-# def create_table_user_data():
-#     conn, cursor = connect()
-#     cursor.execute('''
-#     CREATE TABLE IF NOT EXISTS userData (
-#         id INTEGER PRIMARY KEY,
-#         username TEXT,
-#         ip TEXT,
-#         country TEXT,
-#         regionname TEXT,
-#         city TEXT,
-#         zip TEXT, 
-#         lat TEXT,
-#         lon TEXT,
-#         timezone TEXT,
-#         isp TEXT
-#     )
-# ''')
-#     conn.commit()
-#     conn.close()
-#     print('create_users_data_table Sucessfull')
-
 def create_table_user_data():
     conn, cursor = connect()
     cursor.execute('''
@@ -86,8 +65,8 @@ def create_table_user_data():
         regionname TEXT,
         city TEXT,
         zip TEXT, 
-        lat REAL,  -- Change data type to REAL for latitude
-        lon REAL,  -- Change data type to REAL for longitude
+        lat REAL,  
+        lon REAL, 
         timezone TEXT,
         isp TEXT
     )

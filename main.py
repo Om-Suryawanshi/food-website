@@ -410,7 +410,8 @@ def logout():
 @app.route('/add_meal', methods=['POST'])
 def add_meal():
     if 'username' in session:
-        username = session['username']
+        # username = session['username']
+        username = session.get('username')
 
         meal_data = request.json  # Extract JSON data from the request body
 
@@ -424,6 +425,7 @@ def add_meal():
             if idMeal in meal:
                 return jsonify({'message': 'Meal already liked'})
             else:
+                # if username:
                 # Insert the liked meal into the database
                 insert_liked_Meals(username, idMeal)
                 return jsonify({'message': 'Meal added successfully'})

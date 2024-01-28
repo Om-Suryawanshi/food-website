@@ -4,13 +4,25 @@ const preloader = document.getElementById("loading");
 const search = document.querySelector('header div input');
 const body = document.querySelector('body');
 
-const CATEGORIES_URL = "/api/categories";
-const CATEGORY_CLICK_URL = "/api/filter/c?category=";
-const MEAL_SEARCH_URL = "/api/meal?meal-id=";
+// const CATEGORIES_URL = "/api/categories";
+// const CATEGORY_CLICK_URL = "/api/filter/c?category=";
+// const MEAL_SEARCH_URL = "/api/meal?meal-id=";
+// const INGREDIANT_IMAGE_URL = "https://www.themealdb.com/images/ingredients/";
+// const SEARCH_URL = "api/search?s=";
+// const INGREDIANT_SEARCH_URL = '/api/filter/i?ingredient=';
+// const AREA_FILER_URL = '/api/filter/a?area=';
+
+
+const CATEGORIES_URL = "https://www.themealdb.com/api/json/v1/1/categories.php";
+const CATEGORY_CLICK_URL = "https://www.themealdb.com/api/json/v1/1/filter.php?c=";
+const MEAL_SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/lookup.php?i=";
 const INGREDIANT_IMAGE_URL = "https://www.themealdb.com/images/ingredients/";
-const SEARCH_URL = "api/search?s=";
-const INGREDIANT_SEARCH_URL = '/api/filter/i?ingredient=';
-const AREA_FILER_URL = '/api/filter/a?area=';
+const SEARCH_URL = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+const INGREDIANT_SEARCH_URL = 'https://www.themealdb.com/api/json/v1/1/filter.php?i=';
+const AREA_FILER_URL = 'https://www.themealdb.com/api/json/v1/1/filter.php?a=';
+
+
+
 
 get_categories(CATEGORIES_URL);
 

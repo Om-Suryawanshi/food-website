@@ -4,7 +4,7 @@ from flask_caching import Cache
 from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data, insert_reset_token, get_username_from_token, update_password, get_token_details
 from scripts.check_input import sanitize_input, is_valid_username
 from scripts.geo import fetch_geo
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 import uuid
 import secrets
 import requests
@@ -61,129 +61,6 @@ app.static_folder = 'static'
 @app.route('/')
 def index():
     return render_template('index.html')
-
-# API
-# /api/categories
-@app.route('/api/categories')
-def get_categories():
-    # Fetch data from external API
-    response = requests.get('https://www.themealdb.com/api/json/v1/1/categories.php')
-    data = response.json()
-
-    # Cache data (you can use an in-memory cache or a database)
-    # Example: cache.set('meals_data', data)
-
-    return jsonify(data)
-
-# /api/filter/c?category=beef
-@app.route('/api/filter/c')
-def get_filter_categories():
-    category = request.args.get('category')
-
-    if not category:
-        return jsonify({"error": "Category not specified"}), 400
-
-    # Fetch data from external API based on the specified category
-    api_url = f'https://www.themealdb.com/api/json/v1/1/filter.php?c={category}'
-    response = requests.get(api_url)
-
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to fetch data from external API"}), 500
-
-    data = response.json()
-
-    # Cache data (you can use an in-memory cache or a database)
-    # Example: cache.set(f'meals_data_{category}', data)
-
-    return jsonify(data)
-
-# /api/meal?meal-id=53016
-@app.route('/api/meal')
-def get_meal_id_lookup():
-    meal_id = request.args.get('meal-id')
-    # Fetch data from external API based on the specified meal ID
-    api_url = f'https://www.themealdb.com/api/json/v1/1/lookup.php?i={meal_id}'
-    response = requests.get(api_url)
-
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to fetch data from external API"}), 500
-
-    data = response.json()
-    return jsonify(data)
-
-
-# api/search?s=biriyani
-@app.route('/api/search')
-def search_meals():
-    search_term = request.args.get('s')
-
-    if not search_term:
-        return jsonify({"error": "Search term not specified"}), 400
-
-    # Fetch data from external API based on the specified search term
-    api_url = f'https://www.themealdb.com/api/json/v1/1/search.php?s={search_term}'
-    response = requests.get(api_url)
-
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to fetch data from external API"}), 500
-
-    data = response.json()
-    return jsonify(data)
-
-# /api/filter/i?ingredient=Chicken
-@app.route('/api/filter/i')
-def filter_meals_by_ingredient():
-    ingredient = request.args.get('ingredient')
-
-    if not ingredient:
-        return jsonify({"error": "Ingredient not specified"}), 400
-
-    # Fetch data from external API based on the specified ingredient
-    api_url = f'https://www.themealdb.com/api/json/v1/1/filter.php?i={ingredient}'
-    response = requests.get(api_url)
-
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to fetch data from external API"}), 500
-
-    data = response.json()
-    return jsonify(data)
-
-# /api/filter/a?area=Japanese
-@app.route('/api/filter/a')
-def filter_meals_by_area():
-    area = request.args.get('area')
-
-    if not area:
-        return jsonify({"error": "Area not specified"}), 400
-
-    # Fetch data from external API based on the specified ingredient
-    api_url = f'https://www.themealdb.com/api/json/v1/1/filter.php?a={area}'
-    response = requests.get(api_url)
-
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to fetch data from external API"}), 500
-
-    data = response.json()
-    return jsonify(data)
-
-
-# @cache.cached(timeout=3600)  # Cache images for 1 hour (adjust as needed)
-@app.route('/api/images/<filename>')
-def get_image(filename):
-    # Construct the URL for the external image
-    image_url = f'https://www.themealdb.com/images/ingredients/{filename}'
-
-    # Fetch the image from the external URL
-    image_data = requests.get(image_url).content
-
-    # Return the image data
-    return send_file(
-        BytesIO(image_data),
-        mimetype='image/png',  # Adjust the mimetype based on the actual image type
-        as_attachment=False,
-        download_name=f'{filename}'
-    )
-
 
 
 ##########################################################################################################

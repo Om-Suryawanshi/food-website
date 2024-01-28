@@ -184,7 +184,7 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            var resetUrl = `http://192.168.149.80/forgot-password?token=${data.token}`;
+            var resetUrl = `http://192.168.133.80/forgot-password?token=${data.token}`;
             document.getElementById('resetUrlField').value = resetUrl;
           } else {
             alert('Password reset link generation failed. ' + data.message);

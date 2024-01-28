@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, session, jsonify
 from flask_bcrypt import Bcrypt
 from flask_caching import Cache
-from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data, insert_reset_token, get_username_from_token, update_password
+from scripts.db import insert_user, get_user, get_all_users, get_liked_Meals_db, insert_liked_Meals, remove_liked_Meals, insert_user_Data, insert_login_log, get_login_log, get_user_data, insert_reset_token, get_username_from_token, update_password, get_token_details
 from scripts.check_input import sanitize_input, is_valid_username
 from scripts.geo import fetch_geo
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 import secrets
 import requests
@@ -323,6 +323,16 @@ def reset_password():
             else:
                 return jsonify({'success': False, 'message': 'User not found.'})
 
+def is_valid_token(token):
+    data = get_token_details(token)
+
+    if data:
+        expiration_time = datetime.strptime(data[3], '%Y-%m-%d %H:%M:%S.%f')
+        current_time = datetime.now() + timedelta(milliseconds=2)
+        return expiration_time > current_time
+    else:
+        return False
+
 # Reset password through unique url
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
@@ -330,8 +340,11 @@ def forgot_password():
         # Display the password reset form with the token input field
         token = sanitize_input(request.args.get('token'))
         username = get_username_from_token(token)
-        return render_template('reset_password.html', token=token, username=username)
-
+        if is_valid_token(token):
+            return render_template('reset_password.html', token=token, username=username)
+        else:
+            return jsonify({'error':'Token has expired'})
+        
     elif request.method == 'POST':
         token = request.form.get('token')
         password = sanitize_input(request.form.get('password'))
@@ -358,17 +371,18 @@ def forgot_password():
     return "Invalid token"
 
 # Reset token test api
-# @app.route('/token-test')
-# def token_user():
-#     try:
-#         token = request.args.get('token')
-#         decoded_token = unquote(token)  # Decode the URL-encoded token
-#         username = get_username_from_token(decoded_token)
-#         print(f"Token: {token}, Decoded Token: {decoded_token}, Username: {username}")
-#         return jsonify({'username': username})
-#     except Exception as e:
-#         print(f"Error in token_user route: {e}")
-#         return jsonify({'error': str(e)})
+@app.route('/token-test')
+def token_user():
+    try:
+        token = request.args.get('token')
+        # decoded_token = unquote(token)  # Decode the URL-encoded token
+        data = get_token_details(token)
+        # print(f"Token: {token}, Decoded Token: {token}, Username: {username}")
+        # return jsonify({'username': username})
+        return jsonify({'data': data})
+    except Exception as e:
+        print(f"Error in token_user route: {e}")
+        return jsonify({'error': str(e)})
 
 # Admin User Profile check endpoint
 @app.route('/<string:username>', methods=['GET'])

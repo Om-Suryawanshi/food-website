@@ -176,6 +176,19 @@ def get_username_from_token(token):
     username = cursor.fetchone()
     return username[0]
 
+def get_token_details(token):
+    conn, cursor = connect()
+    cursor.execute('''
+        SELECT * FROM reset_tokens WHERE reset_token = ?
+    ''', (token,))
+    data = cursor.fetchone()
+    if data:
+        return data
+    else:
+        return None
+
+
+
 
 def insert_liked_Meals(username, likedMeals):
     conn, cursor = connect()

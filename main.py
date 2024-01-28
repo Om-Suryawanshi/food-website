@@ -219,17 +219,20 @@ def forgot_password():
         if is_valid_token(token):
             return render_template('reset_password.html', token=token, username=username)
         else:
-            return jsonify({'error':'Token has expired'})
+            return jsonify({'error':'Token has expired or is Invalid'})
         
     elif request.method == 'POST':
         token = request.form.get('token')
         password = sanitize_input(request.form.get('password1'))
-        ver_password = sanitize_input(request.form.get('password2'))
+        password2 = sanitize_input(request.form.get('password2'))
 
         # Check if the token is valid
-        username = get_username_from_token(token)
+        if is_valid_token(token):
+            username = get_username_from_token(token)
+        else:
+            return jsonify({'error':'Token has expired or is Invalid'})
 
-        if username and password == ver_password:
+        if username and password == password2:
             user_ip = request.access_route[-1]
             # Delete the token and update the password
             # delete_token(token)

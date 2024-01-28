@@ -174,7 +174,10 @@ def get_username_from_token(token):
         SELECT username FROM reset_tokens WHERE reset_token = ?
     ''', (token,))
     username = cursor.fetchone()
-    return username[0]
+    if username:
+        return username[0]
+    else: 
+        return None
 
 def get_token_details(token):
     conn, cursor = connect()

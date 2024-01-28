@@ -7,7 +7,6 @@ from scripts.geo import fetch_geo
 from datetime import datetime, timedelta
 import uuid
 import secrets
-import requests
 from io import BytesIO
 
 
@@ -224,12 +223,13 @@ def forgot_password():
         
     elif request.method == 'POST':
         token = request.form.get('token')
-        password = sanitize_input(request.form.get('password'))
+        password = sanitize_input(request.form.get('password1'))
+        ver_password = sanitize_input(request.form.get('password2'))
 
         # Check if the token is valid
         username = get_username_from_token(token)
 
-        if username:
+        if username and password == ver_password:
             user_ip = request.access_route[-1]
             # Delete the token and update the password
             # delete_token(token)
@@ -243,7 +243,7 @@ def forgot_password():
                                  user_zip, user_latitude, user_longitude, user_timezone, user_isp)
             return "Your password is reset"
         else:
-            return "Invalid or expired token. Please try again."
+            return "Invalid or expired token. Please try again, or your password not match"
         
     return "Invalid token"
 
